@@ -1,0 +1,69 @@
+import ballerina/time;
+
+public type CustomerClient client object {
+
+    # Retrieves the list of customers of the store. This API supports pagination.
+    # 
+    # + limit - The limit of `Customer` records per single page. The default value is 50. Maximum value is 250.
+    # + ids - An optional list of customer IDs to retrieve
+    # + sinceId - Retrieve the customers created after this ID
+    # + createdAfter - Retrieve the customers who were created after this time
+    # + createdBefore - Retrieve the customers who were created before this time
+    # + updatedAfter - Retrieve the customers who were updated after this time
+    # + updatedBefore - Retrieve the customers who were updated before this time
+    # + fields - Specify the list of fields of the `Customer` record to retrieve
+    # + return - An array of `Customer` records if the request is successful, or else an `Error` 
+    public remote function getAll(int limit = 50, string[]? ids = (), string? sinceId = (),
+        time:Time? createdAfter = (), time:Time? createdBefore = (),
+        time:Time? updatedAfter = (), time:Time? updatedBefore = (), 
+        string[]? fields = ()) returns @tainted Customer[]|Error {}
+
+    # Retrieves a specific customer using the customer ID.
+    # 
+    # + id - The ID of the customer to be retrieved
+    # + fields - Specify the list of fields of the `Customer` record to retrieve
+    # + return - The `Customer` record of the given ID if the operation succeeded, or else an `Error`
+    public remote function get(string id, string[]? fields = ()) returns @tainted Customer|Error {}
+
+    # Creates a new customer in the store and returns the created `Customer` record. This returned record includes all the details of the customer including the values set by the Shopify admin API.
+    # 
+    # + customer - The customer record with the details of the customer
+    # + return - The created `Customer` record if the operation succeeded, an `Error` otherwise
+    public remote function create(Customer customer) returns @tainted Customer|Error {}
+
+    # Updates the details of a given customer. 
+    # 
+    # + customer - The `Customer` record which should be updated, with the updated field values
+    # + return - The updated `Customer` record if the operation succeeded, or else an `Error`
+    public remote function update(Customer customer) returns @tainted Customer|Error {}
+
+    # Removes a given customer from the store. If the customer has any existing orders, the customer cannot be removed.
+    # 
+    # + customer - The `Customer` record which should be removed
+    # + return - The updated `Customer` record if the operation succeeded, or else an `Error`
+    public remote function remove(Customer customer) returns Error? {}
+
+    # Retrieves the total number of customers in the store.
+    # 
+    # + return - The total number of customers in the store
+    public remote function getCount() returns int? {}
+
+    # Retrieves the orders from the given customer as an array.
+    # 
+    # + id - The ID of the customer to retrieve the orders
+    # + return - An array of `Order` records of the given customer if the operation succeeded, or else an `Error`
+    public remote function getOrders(string id) returns @tainted Order[]|Error {}
+
+    # Creates an account activation URL for the customer. This will return an error if the customer is already activated. The URL is valid for 30 days. If this function is called again on a customer, a new URL will be created and the previously created URL will be invalid.
+    # 
+    # + id - The ID of the customer to be activated
+    # + return - The account verification URL if the operation succeeded, or else an `Error`
+    public remote function getActivationUrl(string id) returns string|Error {}
+
+    # Sends an invite to the given customer.
+    # 
+    # + id - The ID of the customer to send the invite
+    # + invite - The `Invite` record to be sent
+    # + return - The `Invite` sent to the customer, or else an `Error`
+    public remote function sendInvite(string id, Invite invite) returns @tainted Invite|Error {}
+};
