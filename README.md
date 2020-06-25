@@ -5,4 +5,4 @@ Compatibility
 
 | Ballerina Shopify Connector Version | Shopify Admin API Version | Ballerina Version |
 |:-----------------------------------:|:-------------------------:|:-----------------:|
-| 0.1.0                               | 2020-04                   | 2.0.0-Preview     |
+| 0.1.0                               | 2020-04                   | 1.2.4             |
