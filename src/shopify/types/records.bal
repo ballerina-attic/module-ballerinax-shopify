@@ -16,31 +16,10 @@ public type StoreConfiguration record {|
     http:ClientSecureSocket secureSocket?;
 |};
 
-type DateFilter record {|
+public type DateFilter record {|
     time:Time before?;
     time:Time after?;
 |};
-
-// TODO: Add documentation with the correct fields when compile fixes are done.
-# Used to filter data by the created date.
-public type CreatedDateFilter record {
-    *DateFilter;
-};
-
-# Used to filter data by the updated date.
-public type UpdatedDateFilter record {
-    *DateFilter;
-};
-
-# Used to filter data by the processed date.
-public type ProcessedDateFilter record {
-    *DateFilter;
-};
-
-# Used to filter data by the published date.
-public type PublishedDateFilter record {
-    *DateFilter;
-};
 
 # Defines a basic authrization information for an app.
 # 
@@ -80,11 +59,13 @@ public type Detail record {
 # + sinceId - Retrieve the customers having IDs after the given ID
 # + createdDateFilter - Filters the customers by the date of creation
 # + updatedDateFilter - Filters the customers by the date of updation
+# + fields - Retrieve only a specific set fields of a Customer record
 public type CustomerFilter record {|
     int[] ids?;
     int sinceId?;
-    CreatedDateFilter createdDateFilter;
-    UpdatedDateFilter updatedDateFilter;
+    DateFilter createdDateFilter?;
+    DateFilter updatedDateFilter?;
+    string[] fields?;
 |};
 
 # Used to filter customers when retrieving customers.
@@ -101,9 +82,9 @@ public type CustomerFilter record {|
 public type OrderFilter record {|
     string[] ids?;
     string sinceId?;
-    CreatedDateFilter createdDateFilter?;
-    UpdatedDateFilter updatedDateFilter?;
-    ProcessedDateFilter processedDateFilter;
+    DateFilter createdDateFilter?;
+    DateFilter updatedDateFilter?;
+    DateFilter processedDateFilter;
     string attributionAppId?;
     OrderStatus status;
     FinancialStatus financialStatus?;
@@ -125,9 +106,9 @@ public type ProductFilter record {
     string vendor?;
     string 'type;
     string collectionId?;
-    CreatedDateFilter createdDateFilter;
-    UpdatedDateFilter updatedDateFilter;
-    PublishedDateFilter publishedDateFilter;
+    DateFilter createdDateFilter;
+    DateFilter updatedDateFilter;
+    DateFilter publishedDateFilter;
     PublishedStatus publishedStatus;
 };
 

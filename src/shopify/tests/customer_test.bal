@@ -1,9 +1,9 @@
 import ballerina/test;
 import ballerina/time;
 
-time:Time createdTime = check getTimeRecordFromTimeString("2020-06-10T04:27:07-04:00");
-time:Time updatedTime = check getTimeRecordFromTimeString("2020-06-10T04:27:07-04:00");
-time:Time marketingUpdatedTime = check getTimeRecordFromTimeString("2020-06-10T04:27:07-04:00");
+time:Time createdTime = <time:Time>getTimeRecordFromTimeString("2020-06-10T04:27:07-04:00");
+time:Time updatedTime = <time:Time>getTimeRecordFromTimeString("2020-06-10T04:27:07-04:00");
+time:Time marketingUpdatedTime = <time:Time>getTimeRecordFromTimeString("2020-06-10T04:27:07-04:00");
 
 Address address = {
     id: 4467764691109,
@@ -53,7 +53,7 @@ Customer customer = {
 };
 
 @test:Config {}
-function getAllCustomersTest() returns error? {
+function getAllCustomersTest() {
     Customer[] customers = [customer];
 
     OAuthConfiguration oAuthConfiguration = {
@@ -65,11 +65,50 @@ function getAllCustomersTest() returns error? {
     };
     Store store = new (storeConfiguration);
     CustomerClient customerClient = store.getCustomerClient();
-    Customer[]|Error result = customerClient->getAll();
+
+    CustomerFilter filter = {
+        ids: [3663856566437]
+    };
+    Customer[]|Error result = customerClient->getAll(filter);
     if (result is Error) {
         test:assertFail(result.toString());
     } else {
         test:assertEquals(result, customers);
+    }
+}
+
+@test:Config {}
+function getAllCustomersWithFilters() {
+    Customer expectedCustomer = {
+        id: 3663856566437,
+        email: "john.doe@example.com",
+        firstName: "John",
+        lastName: "Doe"
+    };
+    Customer[] expectedCustomers = [expectedCustomer];
+
+    OAuthConfiguration oAuthConfiguration = {
+        accessToken: ACCESS_TOKEN
+    };
+    StoreConfiguration storeConfiguration = {
+        storeName: STORE_NAME,
+        authConfiguration: oAuthConfiguration
+    };
+    Store store = new (storeConfiguration);
+    CustomerClient customerClient = store.getCustomerClient();
+
+    CustomerFilter filter = {
+        ids: [3663856566437],
+        createdDateFilter: {
+            after: createdTime
+        },
+        fields: ["firstName", "lastName", "email", "id"]
+    };
+    Customer[]|Error result = customerClient->getAll(filter);
+    if (result is Error) {
+        test:assertFail(result.toString());
+    } else {
+        test:assertEquals(result, expectedCustomers);
     }
 }
 

@@ -1,11 +1,11 @@
 import ballerina/auth;
 import ballerina/http;
+import ballerina/io;
 import ballerina/lang.'float;
 import ballerina/lang.'int;
 import ballerina/stringutils;
-import ballerina/time;
 
-import ballerina/io;
+import ballerina/time;
 
 string message = "Not implemented";
 
@@ -117,34 +117,47 @@ function convertToCamelCase(string key) returns string {
     return recordKey;
 }
 
-function getTimeRecordFromTimeString(string time) returns time:Time|Error {
-    var parsedTime = time:parse(time, DATE_FORMAT);
-    if (parsedTime is time:Error) {
-        return createError("Error occurred while converting the time string", parsedTime);
+function getTimeRecordFromTimeString(string? time) returns time:Time|Error? {
+    if (time is ()) {
+        return;
     } else {
-        return parsedTime;
+        var parsedTime = time:parse(time, DATE_FORMAT);
+        if (parsedTime is time:Error) {
+            return createError("Error occurred while converting the time string", parsedTime);
+        } else {
+            return parsedTime;
+        }
     }
 }
 
-function getValueFromJson(string key, map<json> jsonMap) returns string {
-    var result = trap jsonMap.remove(key);
-    if (result is error) {
-        return "";
+function getTimeStringTimeFromFilter(DateFilter filter, string filterType) returns string? {
+    time:Time? date = filter[filterType];
+    if (date is time:Time) {
+        return getTimeStringFromTimeRecord(date);
     }
-    return result.toString();
 }
 
-function getFloatValueFromJson(string key, map<json> jsonMap) returns float|Error {
+function getTimeStringFromTimeRecord(time:Time time) returns string {
+    return time:toString(time);
+}
+
+function getValueFromJson(string key, map<json> jsonMap) returns string? {
+    if (jsonMap.hasKey(key)) {
+        var result = jsonMap.remove(key);
+        return result.toString();
+    }
+}
+
+function getFloatValueFromJson(string key, map<json> jsonMap) returns float|Error? {
     string errorMessage = "Error occurred while converting to the float value.";
-    var jsonValue = jsonMap.remove(key);
-    if (jsonValue is ()) {
-        return createError(errorMessage + " Field " + key + " does not exist.", jsonValue);
+    if (jsonMap.hasKey(key)) {
+        var jsonValue = jsonMap.remove(key);
+        var result = 'float:fromString(jsonValue.toString());
+        if (result is error) {
+            return createError(errorMessage, result);
+        }
+        return <float>result;
     }
-    var result = 'float:fromString(jsonValue.toString());
-    if (result is error) {
-        return createError(errorMessage, result);
-    }
-    return <float>result;
 }
 
 function getIntValueFromJson(string key, map<json> jsonMap) returns int|Error {
@@ -167,6 +180,35 @@ function getJsonPayload(http:Response response) returns @tainted json|Error {
     } else {
         return payload;
     }
+}
+
+function buildCommaSeparatedListFromArray(any[] array) returns string {
+    string result = "";
+    int i = 0;
+    foreach var item in array {
+        if (i == 0) {
+            result += item.toString();
+        } else {
+            result += "," + item.toString();
+        }
+        i += 1;
+    }
+    return result;
+}
+
+function buildFieldsCommaSeparatedList(string[] array) returns string {
+    string result = "";
+    int i = 0;
+    foreach string item in array {
+        string fieldName = convertToUnderscoreCase(item);
+        if (i == 0) {
+            result += fieldName;
+        } else {
+            result += "," + fieldName;
+        }
+        i += 1;
+    }
+    return result;
 }
 
 function notImplemented() returns Error {

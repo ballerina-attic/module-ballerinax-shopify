@@ -1,28 +1,12 @@
 import ballerina/http;
+import ballerina/lang.'string;
 import ballerina/time;
 
 // TODO: Handle pagination
 function getAllCustomers(CustomerClient customerClient, CustomerFilter? filter) returns @tainted Customer[]|Error {
     string queryParams = "";
     if (filter is CustomerFilter) {
-        queryParams = "?";
-        foreach var [key, value] in filter.entries() {
-            if (key == ID && filter?.ids is int[]) {
-                queryParams += "ids=";
-                int[] ids = <int[]>filter?.ids;
-                int i = 0;
-                foreach int id in ids {
-                    if (i == 0) {
-                        queryParams += id.toString();
-                    } else {
-                        queryParams += "," + id.toString();
-                    }
-                    i += 1;
-                }
-            } else if (key == SINCE_ID) {
-                queryParams += convertToUnderscoreCase(key) + "=" + filter?.sinceId.toString();
-            }
-        }
+        queryParams = buildQueryParamters(filter);
     }
     string path = CUSTOMER_API_PATH + JSON + queryParams;
     http:Client httpClient = customerClient.getStore().getHttpClient();
@@ -41,7 +25,7 @@ function getAllCustomers(CustomerClient customerClient, CustomerFilter? filter) 
     Customer[] customers = [];
     int i = 0;
     foreach var customerJson in customersJson {
-        var customer = getCustomerFromJson(<@untainted>customerJson);
+        var customer = getCustomerFromJson(customerJson);
         if (customer is Error) {
             return customer;
         } else {
@@ -101,14 +85,14 @@ function sendCustomerInvitation(string id, Invite invite) returns Invite|Error {
 
 function getCustomerFromJson(json jsonValue) returns Customer|Error {
     map<json> customerJson = <map<json>>convertJsonKeysToRecordKeys(jsonValue);
-    string createdAtString = getValueFromJson(CREATED_AT, customerJson);
-    string updatedAtString = customerJson.remove(UPDATED_AT).toString();
-    string marketingUpdatedAtString = customerJson.remove(MARKETING_UPDATED_AT).toString();
+    string? createdAtString = getValueFromJson(CREATED_AT, customerJson);
+    string? updatedAtString = getValueFromJson(UPDATED_AT, customerJson);
+    string? marketingUpdatedAtString = getValueFromJson(MARKETING_UPDATED_AT, customerJson);
 
-    time:Time createdAt = check getTimeRecordFromTimeString(createdAtString);
-    time:Time updatedAt = check getTimeRecordFromTimeString(updatedAtString);
-    time:Time marketingUpdatedAt = check getTimeRecordFromTimeString(marketingUpdatedAtString);
-    float totalSpending = check getFloatValueFromJson(TOTAL_SPENT, customerJson);
+    time:Time? createdAt = check getTimeRecordFromTimeString(createdAtString);
+    time:Time? updatedAt = check getTimeRecordFromTimeString(updatedAtString);
+    time:Time? marketingUpdatedAt = check getTimeRecordFromTimeString(marketingUpdatedAtString);
+    float? totalSpending = check getFloatValueFromJson(TOTAL_SPENT, customerJson);
 
     var customerFromJson = Customer.constructFrom(customerJson);
 
@@ -116,9 +100,58 @@ function getCustomerFromJson(json jsonValue) returns Customer|Error {
         return createError("Error occurred while constructiong the Customer record.", customerFromJson);
     }
     Customer customer = <Customer>customerFromJson;
-    customer.createdAt = createdAt;
-    customer.updatedAt = updatedAt;
-    customer.acceptsMarketingUpdatedAt = marketingUpdatedAt;
-    customer.totalSpent = totalSpending;
+    if (createdAt is time:Time) {
+        customer.createdAt = createdAt;
+    }
+    if (updatedAt is time:Time) {
+        customer.updatedAt = updatedAt;
+    }
+    if (marketingUpdatedAt is time:Time) {
+        customer.acceptsMarketingUpdatedAt = marketingUpdatedAt;
+    }
+    if (totalSpending is float) {
+        customer.totalSpent = totalSpending;
+    }
     return customer;
+}
+
+function buildQueryParamters(CustomerFilter filter) returns string {
+    string queryParams = "";
+    foreach var [key, value] in filter.entries() {
+        if (key == IDS && filter?.ids is int[]) {
+            int[] ids = <int[]>filter?.ids;
+            queryParams += "&" + IDS + "=" + buildCommaSeparatedListFromArray(ids);
+        } else if (key == SINCE_ID && filter?.sinceId is int) {
+            queryParams += "&" + convertToUnderscoreCase(key) + "=" + filter?.sinceId.toString();
+        } else if (key == CREATED_DATE_FILTER && filter?.createdDateFilter is DateFilter) {
+            DateFilter dateFilter = <DateFilter>filter?.createdDateFilter;
+            string? createdBefore = getTimeStringTimeFromFilter(dateFilter, BEFORE);
+            if (createdBefore is string) {
+                queryParams += "&" + UPDATED_BEFORE + "=" + createdBefore;
+                string s = queryParams.toString();
+            }
+            string? createdAfter = getTimeStringTimeFromFilter(dateFilter, AFTER);
+            if (createdAfter is string) {
+                queryParams += "&" + UPDATED_AFTER + "=" + createdAfter;
+            }
+        } else if (key == UPDATED_DATE_FILTER && filter?.updatedDateFilter is DateFilter) {
+            DateFilter dateFilter = <DateFilter>filter?.updatedDateFilter;
+            string? createdBefore = getTimeStringTimeFromFilter(dateFilter, BEFORE);
+            if (createdBefore is string) {
+                queryParams += "&" + UPDATED_BEFORE + "=" + createdBefore;
+            }
+            string? createdAfter = getTimeStringTimeFromFilter(dateFilter, AFTER);
+            if (createdAfter is string) {
+                queryParams += "&" + UPDATED_AFTER + "=" + createdAfter;
+            }
+        } else if (key == FIELDS && filter?.fields is string[]) {
+            string[] fields = <string[]>filter?.fields;
+            queryParams += "&" + FIELDS + "=" + buildCommaSeparatedListFromArray(fields);
+        }
+    }
+    if (queryParams == "") {
+        return queryParams;
+    } else {
+        return "?" + 'string:substring(queryParams, 1, queryParams.length());
+    }
 }

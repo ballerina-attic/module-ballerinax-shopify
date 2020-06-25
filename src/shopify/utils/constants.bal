@@ -43,3 +43,7 @@ const DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssz";
 
 // JSON map fileds
 const COUNT = "count";
+
+// Query parameter fields
+const UPDATED_BEFORE = "updated_at_max";
+const UPDATED_AFTER = "updated_at_min";

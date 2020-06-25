@@ -1,4 +1,5 @@
 import ballerina/test;
+import ballerina/time;
 
 const CAMEL_CASE_VALUE = "fullNameWithInitials";
 const UNDERSCORE_CASE_VALUE = "full_name_with_initials";
@@ -58,4 +59,16 @@ function timeParsingTest() {
     if (parsedTime is Error) {
         test:assertFail("Time conversion failed. " + parsedTime.toString());
     }
+}
+
+@test:Config{}
+function timeStringTest() {
+    string timeString = "2020-06-10T04:27:07-04:00";
+    var parsedTime = getTimeRecordFromTimeString(timeString);
+    if (parsedTime is Error) {
+        test:assertFail("Time conversion failed. " + parsedTime.toString());
+    }
+    time:Time time = <time:Time>parsedTime;
+    string convertedTimeString = getTimeStringFromTimeRecord(time);
+    test:assertEquals(convertedTimeString, timeString);
 }

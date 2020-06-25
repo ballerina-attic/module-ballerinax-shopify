@@ -28,3 +28,11 @@ const TOTAL_SPENT = "totalSpent";
 
 // CustomerFilter
 const SINCE_ID = "sinceId";
+const IDS = "ids";
+const CREATED_DATE_FILTER = "createdDateFilter";
+const UPDATED_DATE_FILTER = "updatedDateFilter";
+const FIELDS = "fields";
+
+// DateFilter
+const BEFORE = "before";
+const AFTER = "after";
