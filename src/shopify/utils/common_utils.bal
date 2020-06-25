@@ -1,5 +1,6 @@
 import ballerina/auth;
 import ballerina/http;
+import ballerina/lang.'float;
 import ballerina/stringutils;
 import ballerina/time;
 
@@ -114,7 +115,7 @@ function convertToCamelCase(string key) returns string {
 }
 
 function getTimeRecordFromTimeString(string time) returns time:Time|Error {
-    var parsedTime = time:parse(time, "yyyy-MM-dd'T'HH:mm:ssz");
+    var parsedTime = time:parse(time, DATE_FORMAT);
     if (parsedTime is time:Error) {
         return createError("Error occurred while converting the time string", parsedTime);
     } else {
@@ -129,6 +130,19 @@ function getValueFromJson(string key, map<json> jsonMap) returns string {
     }
     return result.toString();
 }
+
+function getFloatValueFromJson(string key, map<json>jsonMap) returns float|Error {
+    string errorMessage = "Error occurred while converting to the float value.";
+    var jsonValue = jsonMap.remove(key);
+    if (jsonValue is ()) {
+        return createError(errorMessage + " Field " + key + " does not exist.", jsonValue);
+    }
+    var result = 'float:fromString(jsonValue.toString());
+    if (result is error) {
+        return createError(errorMessage, result);
+    }
+    return <float>result;
+} 
 
 function notImplemented() returns Error {
     return error(ERROR_REASON, message = message);

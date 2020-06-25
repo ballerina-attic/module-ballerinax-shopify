@@ -131,17 +131,35 @@ public type ProductFilter record {
     PublishedStatus publishedStatus;
 };
 
-// # Represents a Shopify customer.
-// # 
-// # + id - The ID of the customer. This will be set when the customer is created
-// #        using `CustomerClient->create` function. Do not set this manually
-// # + state - The current state of the customer. Refer `CustomerState` type for
-// #           accepted values
-// # + emailAddress - The email address of the customer
-// # + marketingOptLevel - The level of marketing email opt of the user. This
-// #                       should set to `()` if the user does not opts for
-// #                       marketing mails. Refer `MarketingOptLevel` for available
-// #                       values
+# Represents a Shopify customer.
+# 
+# + id - The ID of the customer. This will be set when the customer is created using `CustomerClient->create` function.
+#        Do not set this manually
+# + email - The email address of the customer
+# + acceptsMarketing - Whether the Customer accepts marketing emails, or not
+# + createdAt - The `time:Time` of the created date of the Customer
+# + updatedAt - The `time:Time` of the updated date of the Customer
+# + firstName - The first name of the Customer
+# + lastName - The last Name of the Customer
+# + ordersCount - Number of orders belongs to the Customer
+# + state - The current state of the customer. Refer `CustomerState` type for accepted values
+# + totalSpent - The total amount the Customer has spent
+# + lastOrderId - The ID of the last Order from the Customer
+# + note - Notes about the Customer
+# + verifiedEmail - Whether the Email address of the Customer is verified or not
+# + multipassIdentifier - A unique identifier for the Customer which is used with multipass login
+# + taxExempt - Whether the Custoemr is exempted from tax
+# + phone - The phone number of the Customer
+# + tags - The tags related to the Customer
+# + lastOrderName - The name of the last Order from the Customer
+# + currency - The currecy used by the Customer
+# + addresses - The set of Addresses related to the Customer
+# + acceptsMarketingUpdatedAt - The time when the Customer updated whether to accept marketing emails or not
+# + marketingOptInLevel - The level of marketing email opt of the user. This should set to `()` if the user does not
+#                         opts for marketing mails. Refer `MarketingOptLevel` for available values
+# + taxExemptions - The tax exemptions for the Customer (Canadian taxes only)
+# + adminGraphqlApiId - The graphql admin API path for the Customer
+# + defaultAddress - The default address of the Customer
 public type Customer record {
     int id?;
     string email?;
@@ -152,7 +170,7 @@ public type Customer record {
     string lastName?;
     int ordersCount?;
     CustomerState state?;
-    string totalSpent?;
+    float totalSpent?;
     string? lastOrderId?;
     string note?;
     boolean verifiedEmail?;

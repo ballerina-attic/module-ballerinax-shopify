@@ -42,3 +42,6 @@ public const MARKETING_SINGLE = "single_opt_in";
 const CREATED_AT = "createdAt";
 const UPDATED_AT = "updatedAt";
 const MARKETING_UPDATED_AT = "acceptsMarketingUpdatedAt";
+const TOTAL_SPENT = "totalSpent";
+
+const DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssz";

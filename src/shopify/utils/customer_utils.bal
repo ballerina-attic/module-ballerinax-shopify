@@ -2,7 +2,26 @@ import ballerina/http;
 import ballerina/time;
 
 function getAllCustomers(CustomerClient customerClient, CustomerFilter? filter) returns @tainted Customer[]|Error {
-    string path = CUSTOMER_API_PATH + JSON;
+    string queryParams = "";
+    if (filter is CustomerFilter) {
+        queryParams = "?";
+        foreach var [key, value] in filter.entries() {
+            if (key == ID && filter?.ids is string[]) {
+                queryParams += "ids=";
+                string[] ids = <string[]>filter?.ids;
+                int i = 0;
+                foreach string id in ids {
+                    if (i == 0) {
+                        queryParams += id;
+                    } else {
+                        queryParams += "," + id;
+                    }
+                    i += 1;
+                }
+            }
+        }
+    }
+    string path = CUSTOMER_API_PATH + JSON + queryParams;
     http:Client httpClient = customerClient.getStore().getHttpClient();
     http:Request request = customerClient.getStore().getRequest();
     var result = httpClient->get(path, request);
@@ -20,7 +39,7 @@ function getAllCustomers(CustomerClient customerClient, CustomerFilter? filter) 
     }
 
     json jsonPayload = <json>payload;
-    json[] customersJson = <json[]> jsonPayload.customers;
+    json[] customersJson = <json[]>jsonPayload.customers;
     Customer[] customers = [];
     int i = 0;
     foreach var customerJson in customersJson {
@@ -76,6 +95,7 @@ function getCustomerFromJson(json jsonValue) returns Customer|Error {
     time:Time createdAt = check getTimeRecordFromTimeString(createdAtString);
     time:Time updatedAt = check getTimeRecordFromTimeString(updatedAtString);
     time:Time marketingUpdatedAt = check getTimeRecordFromTimeString(marketingUpdatedAtString);
+    float totalSpending = check getFloatValueFromJson(TOTAL_SPENT, customerJson);
 
     var customerFromJson = Customer.constructFrom(customerJson);
 
@@ -86,5 +106,6 @@ function getCustomerFromJson(json jsonValue) returns Customer|Error {
     customer.createdAt = createdAt;
     customer.updatedAt = updatedAt;
     customer.acceptsMarketingUpdatedAt = marketingUpdatedAt;
+    customer.totalSpent = totalSpending;
     return customer;
 }
