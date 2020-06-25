@@ -81,8 +81,8 @@ public type Detail record {
 # + createdDateFilter - Filters the customers by the date of creation
 # + updatedDateFilter - Filters the customers by the date of updation
 public type CustomerFilter record {|
-    string[] ids?;
-    string sinceId?;
+    int[] ids?;
+    int sinceId?;
     CreatedDateFilter createdDateFilter;
     UpdatedDateFilter updatedDateFilter;
 |};

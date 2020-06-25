@@ -1,8 +1,11 @@
 import ballerina/auth;
 import ballerina/http;
 import ballerina/lang.'float;
+import ballerina/lang.'int;
 import ballerina/stringutils;
 import ballerina/time;
+
+import ballerina/io;
 
 string message = "Not implemented";
 
@@ -131,7 +134,7 @@ function getValueFromJson(string key, map<json> jsonMap) returns string {
     return result.toString();
 }
 
-function getFloatValueFromJson(string key, map<json>jsonMap) returns float|Error {
+function getFloatValueFromJson(string key, map<json> jsonMap) returns float|Error {
     string errorMessage = "Error occurred while converting to the float value.";
     var jsonValue = jsonMap.remove(key);
     if (jsonValue is ()) {
@@ -142,8 +145,31 @@ function getFloatValueFromJson(string key, map<json>jsonMap) returns float|Error
         return createError(errorMessage, result);
     }
     return <float>result;
-} 
+}
+
+function getIntValueFromJson(string key, map<json> jsonMap) returns int|Error {
+    string errorMessage = "Error occurred while converting to the float value.";
+    var jsonValue = jsonMap.remove(key);
+    if (jsonValue is ()) {
+        return createError(errorMessage + " Field " + key + " does not exist.", jsonValue);
+    }
+    var result = 'int:fromString(jsonValue.toString());
+    if (result is error) {
+        return createError(errorMessage, result);
+    }
+    return <int>result;
+}
+
+function getJsonPayload(http:Response response) returns @tainted json|Error {
+    json|error payload = response.getJsonPayload();
+    if (payload is error) {
+        return createError("Invalid payload received", payload);
+    } else {
+        return payload;
+    }
+}
 
 function notImplemented() returns Error {
+    io:println("Not implemented");
     return error(ERROR_REASON, message = message);
 }

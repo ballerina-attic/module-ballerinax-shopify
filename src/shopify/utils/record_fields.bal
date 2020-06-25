@@ -1,5 +1,7 @@
-// Address
+// Common
 const ID = "id";
+
+// Address
 const CUSTOMER_ID = "customer_id";
 const FIRST_NAME = "first_name";
 const LAST_NAME = "last_name";
@@ -19,3 +21,10 @@ const DEFAULT = "default";
 
 // Customer
 const ADDRESS = "address";
+const CREATED_AT = "createdAt";
+const UPDATED_AT = "updatedAt";
+const MARKETING_UPDATED_AT = "acceptsMarketingUpdatedAt";
+const TOTAL_SPENT = "totalSpent";
+
+// CustomerFilter
+const SINCE_ID = "sinceId";

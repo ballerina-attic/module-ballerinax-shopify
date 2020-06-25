@@ -73,7 +73,35 @@ function getAllCustomersTest() returns error? {
     }
 }
 
-@test:Config {}
-function getAllCustomersWithFilterTest() returns Error? {
+// @test:Config {}
+// function getAllCustomersWithFilterTest() returns Error? {
+//     OAuthConfiguration oAuthConfiguration = {
+//         accessToken: ACCESS_TOKEN
+//     };
+//     StoreConfiguration storeConfiguration = {
+//         storeName: STORE_NAME,
+//         authConfiguration: oAuthConfiguration
+//     };
+//     Store store = new (storeConfiguration);
+//     CustomerClient customerClient = store.getCustomerClient();
+//     Customer|Error result = customerClient->get(4467764691109);
+// }
 
+@test:Config {}
+function getCustomerCountTest() {
+    OAuthConfiguration oAuthConfiguration = {
+        accessToken: ACCESS_TOKEN
+    };
+    StoreConfiguration storeConfiguration = {
+        storeName: STORE_NAME,
+        authConfiguration: oAuthConfiguration
+    };
+    Store store = new (storeConfiguration);
+    CustomerClient customerClient = store.getCustomerClient();
+    int|Error result = customerClient->getCount();
+    if (result is Error) {
+        test:assertFail(result.toString());
+    } else {
+        test:assertEquals(result, 1);
+    }
 }

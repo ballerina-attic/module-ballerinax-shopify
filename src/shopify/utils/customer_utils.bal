@@ -1,23 +1,26 @@
 import ballerina/http;
 import ballerina/time;
 
+// TODO: Handle pagination
 function getAllCustomers(CustomerClient customerClient, CustomerFilter? filter) returns @tainted Customer[]|Error {
     string queryParams = "";
     if (filter is CustomerFilter) {
         queryParams = "?";
         foreach var [key, value] in filter.entries() {
-            if (key == ID && filter?.ids is string[]) {
+            if (key == ID && filter?.ids is int[]) {
                 queryParams += "ids=";
-                string[] ids = <string[]>filter?.ids;
+                int[] ids = <int[]>filter?.ids;
                 int i = 0;
-                foreach string id in ids {
+                foreach int id in ids {
                     if (i == 0) {
-                        queryParams += id;
+                        queryParams += id.toString();
                     } else {
-                        queryParams += "," + id;
+                        queryParams += "," + id.toString();
                     }
                     i += 1;
                 }
+            } else if (key == SINCE_ID) {
+                queryParams += convertToUnderscoreCase(key) + "=" + filter?.sinceId.toString();
             }
         }
     }
@@ -33,17 +36,12 @@ function getAllCustomers(CustomerClient customerClient, CustomerFilter? filter) 
     // Check status code and return error if theres any
     check checkResponse(response);
 
-    var payload = response.getJsonPayload();
-    if (payload is error) {
-        return createError("Invalid payload received", payload);
-    }
-
-    json jsonPayload = <json>payload;
-    json[] customersJson = <json[]>jsonPayload.customers;
+    json payload = check getJsonPayload(response);
+    json[] customersJson = <json[]>payload.customers;
     Customer[] customers = [];
     int i = 0;
     foreach var customerJson in customersJson {
-        var customer = getCustomerFromJson(customerJson);
+        var customer = getCustomerFromJson(<@untainted>customerJson);
         if (customer is Error) {
             return customer;
         } else {
@@ -54,7 +52,7 @@ function getAllCustomers(CustomerClient customerClient, CustomerFilter? filter) 
     return customers;
 }
 
-function getCustomer(string id, string[]? fields) returns Customer|Error {
+function getCustomer(int id, string[]? fields) returns Customer|Error {
     return notImplemented();
 }
 
@@ -70,8 +68,23 @@ function removeCustomer(Customer Customer) returns Error? {
     return notImplemented();
 }
 
-function getCustomerCount() returns int {
-    return -999;
+function getCustomerCount(CustomerClient customerClient) returns @tainted int|Error {
+    string path = CUSTOMER_API_PATH + COUNT_PATH + JSON;
+    http:Client httpClient = customerClient.getStore().getHttpClient();
+    http:Request request = customerClient.getStore().getRequest();
+    var result = httpClient->get(path, request);
+
+    if (result is error) {
+        return createError("Could not retrive data from the Shopify server.", result);
+    }
+    http:Response response = <http:Response>result;
+
+    // Check status code and return error if theres any
+    check checkResponse(response);
+
+    json payload = check getJsonPayload(response);
+    map<json> jsonMap = <map<json>>payload;
+    return getIntValueFromJson(COUNT, jsonMap);
 }
 
 function getCustomerOrders(string id) returns Order[]|Error {

@@ -3,6 +3,7 @@ const SHOPIFY_URL = ".myshopify.com";
 const HTTPS = "https://";
 
 const CUSTOMER_API_PATH = "/customers";
+const COUNT_PATH = "/count";
 
 const JSON = ".json";
 
@@ -38,10 +39,7 @@ public const PRODUCT_ANY = "any";
 
 public const MARKETING_SINGLE = "single_opt_in";
 
-// Customer record fields
-const CREATED_AT = "createdAt";
-const UPDATED_AT = "updatedAt";
-const MARKETING_UPDATED_AT = "acceptsMarketingUpdatedAt";
-const TOTAL_SPENT = "totalSpent";
-
 const DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssz";
+
+// JSON map fileds
+const COUNT = "count";

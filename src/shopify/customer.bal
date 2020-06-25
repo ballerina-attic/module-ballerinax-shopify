@@ -24,7 +24,7 @@ public type CustomerClient client object {
     # + id - The ID of the customer to be retrieved
     # + fields - Specify the list of fields of the `Customer` record to retrieve
     # + return - The `Customer` record of the given ID if the operation succeeded, or else an `Error`
-    public remote function get(string id, string[]? fields = ()) returns @tainted Customer|Error {
+    public remote function get(int id, string[]? fields = ()) returns @tainted Customer|Error {
         return getCustomer(id, fields);
     }
 
@@ -55,8 +55,8 @@ public type CustomerClient client object {
     # Retrieves the total number of customers in the store.
     # 
     # + return - The total number of customers in the store
-    public remote function getCount() returns int {
-        return getCustomerCount();
+    public remote function getCount() returns @tainted int|Error {
+        return getCustomerCount(self);
     }
 
     # Retrieves the orders from the given customer as an array.
