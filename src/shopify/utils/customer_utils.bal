@@ -6,12 +6,42 @@ import ballerina/time;
 function getAllCustomers(CustomerClient customerClient, CustomerFilter? filter) returns @tainted Customer[]|Error {
     string queryParams = "";
     if (filter is CustomerFilter) {
-        queryParams = buildQueryParamters(filter);
+        var result = trap buildQueryParamters(filter);
+        if (result is Error) {
+            return result;
+        }
+        queryParams = <string>result;
     }
     string path = CUSTOMER_API_PATH + JSON + queryParams;
+    var result = getCustomersFromPath(customerClient, path);
+    if (result is Error) {
+        return result;
+    } else {
+        var [customers, link] = result;
+        return customers;
+    }
+
+    // CustomerStream customerStream = new(path, customerClient);
+    // return new stream<Customer[]|Error>(customerStream);
+}
+
+function getCustomer(int id, string[]? fields) returns Customer|Error {
+    return notImplemented();
+}
+
+function createCustomer(CustomerClient customerClient, NewCustomer customer) returns @tainted Customer|Error {
+    string path = CUSTOMER_API_PATH + JSON;
     http:Client httpClient = customerClient.getStore().getHttpClient();
     http:Request request = customerClient.getStore().getRequest();
-    var result = httpClient->get(path, request);
+
+    json newCustomerJson = <json>json.constructFrom(customer);
+    newCustomerJson = convertRecordKeysToJsonKeys(newCustomerJson);
+    json payload = {
+        customer: newCustomerJson
+    };
+    request.setJsonPayload(<@untainted>payload);
+
+    var result = httpClient->post(path, request);
     if (result is error) {
         return createError("Could not retrive data from the Shopify server.", result);
     }
@@ -20,36 +50,27 @@ function getAllCustomers(CustomerClient customerClient, CustomerFilter? filter) 
     // Check status code and return error if theres any
     check checkResponse(response);
 
-    json payload = check getJsonPayload(response);
-    json[] customersJson = <json[]>payload.customers;
-    Customer[] customers = [];
-    int i = 0;
-    foreach var customerJson in customersJson {
-        var customer = getCustomerFromJson(customerJson);
-        if (customer is Error) {
-            return customer;
-        } else {
-            customers[i] = customer;
-            i += 1;
-        }
-    }
-    return customers;
-}
-
-function getCustomer(int id, string[]? fields) returns Customer|Error {
-    return notImplemented();
-}
-
-function createCustomer(Customer customer) returns Customer|Error {
-    return notImplemented();
+    json responsePayload = check getJsonPayload(response);
+    json customerJson = <json>responsePayload.customer;
+    return getCustomerFromJson(customerJson);
 }
 
 function updateCustomer(Customer customer) returns Customer|Error {
     return notImplemented();
 }
 
-function removeCustomer(Customer Customer) returns Error? {
-    return notImplemented();
+function removeCustomer(CustomerClient customerClient, int id) returns Error? {
+    string path = CUSTOMER_API_PATH + "/" + id.toString() + JSON;
+
+    http:Client httpClient = customerClient.getStore().getHttpClient();
+    http:Request request = customerClient.getStore().getRequest();
+    var result = httpClient->delete(path, request);
+    if (result is error) {
+        return createError("Could not retrive data from the Shopify server.", result);
+    }
+    http:Response response = <http:Response>result;
+
+    return checkResponse(response);
 }
 
 function getCustomerCount(CustomerClient customerClient) returns @tainted int|Error {
@@ -71,15 +92,33 @@ function getCustomerCount(CustomerClient customerClient) returns @tainted int|Er
     return getIntValueFromJson(COUNT, jsonMap);
 }
 
-function getCustomerOrders(string id) returns Order[]|Error {
+function getCustomerOrders(int id) returns Order[]|Error {
     return notImplemented();
 }
 
-function getCustomerActivationUrl(string id) returns string|Error {
-    return notImplemented();
+function getCustomerActivationUrl(CustomerClient customerClient, int id) returns @tainted string|Error {
+    string path = CUSTOMER_API_PATH + "/" + id.toString() + "/" + ACTIVATION_URL + JSON;
+    http:Client httpClient = customerClient.getStore().getHttpClient();
+    http:Request request = customerClient.getStore().getRequest();
+    var result = httpClient->get(path, request);
+
+    if (result is error) {
+        return createError("Could not retrive data from the Shopify server.", result);
+    }
+    http:Response response = <http:Response>result;
+
+    // Check status code and return error if theres any
+    check checkResponse(response);
+    map<json> responsePayload = <map<json>>check getJsonPayload(response);
+    var activationUrl = trap responsePayload[ACTIVATION_URL].toString();
+    if (activationUrl is error) {
+        return createError("Error occurred while retriving the activation URL.", activationUrl);
+    } else {
+        return activationUrl;
+    }
 }
 
-function sendCustomerInvitation(string id, Invite invite) returns Invite|Error {
+function sendCustomerInvitation(int id, Invite invite) returns Invite|Error {
     return notImplemented();
 }
 
@@ -117,7 +156,7 @@ function getCustomerFromJson(json jsonValue) returns Customer|Error {
 
 function buildQueryParamters(CustomerFilter filter) returns string {
     string queryParams = "";
-    foreach var [key, value] in filter.entries() {
+        foreach var [key, value] in filter.entries() {
         if (key == IDS && filter?.ids is int[]) {
             int[] ids = <int[]>filter?.ids;
             queryParams += "&" + IDS + "=" + buildCommaSeparatedListFromArray(ids);
@@ -144,6 +183,14 @@ function buildQueryParamters(CustomerFilter filter) returns string {
             if (createdAfter is string) {
                 queryParams += "&" + UPDATED_AFTER + "=" + createdAfter;
             }
+        } else if (key == LIMIT && filter?.'limit is int) {
+            int 'limit = <int>filter?.'limit;
+            if ('limit <1 || 'limit > PAGE_MAX_LIMIT) {
+                panic createError("The max limit must be a positive integer less than " + PAGE_MAX_LIMIT.toString() +
+                    " (inclusive)");
+            }
+            string limitString = (filter?.'limit).toString();
+            queryParams += "&" + LIMIT + "=" + limitString;
         } else if (key == FIELDS && filter?.fields is string[]) {
             string[] fields = <string[]>filter?.fields;
             queryParams += "&" + FIELDS + "=" + buildCommaSeparatedListFromArray(fields);
@@ -155,3 +202,56 @@ function buildQueryParamters(CustomerFilter filter) returns string {
         return "?" + 'string:substring(queryParams, 1, queryParams.length());
     }
 }
+
+function getCustomersFromPath(CustomerClient customerClient, string path) returns @tainted [Customer[], string]|Error {
+    http:Client httpClient = customerClient.getStore().getHttpClient();
+    http:Request request = customerClient.getStore().getRequest();
+    var result = httpClient->get(path, request);
+    if (result is error) {
+        return createError("Could not retrive data from the Shopify server.", result);
+    }
+    http:Response response = <http:Response>result;
+    string link = check getLinkFromHeader(response);
+
+    // Check status code and return error if theres any
+    check checkResponse(response);
+
+    json payload = check getJsonPayload(response);
+    json[] customersJson = <json[]>payload.customers;
+    Customer[] customers = [];
+    int i = 0;
+    foreach var customerJson in customersJson {
+        var customer = getCustomerFromJson(customerJson);
+        if (customer is Error) {
+            return customer;
+        } else {
+            customers[i] = customer;
+            i += 1;
+        }
+    }
+    return [customers, link];
+}
+
+// type CustomerStream object {
+//     string? link;
+//     CustomerClient customerClient;
+//     public function __init(string link, CustomerClient customerClient) {
+//         self.link = link;
+//         self.customerClient = customerClient;
+//     }
+
+//     function next() returns @tainted record {| Customer[]|Error value; |}? {
+//         if (self.link is ()) {
+//             return;
+//         }
+//         string linkString = <string>self.link;
+//         var result = getCustomersFromPath(self.customerClient, linkString);
+//         if (result is Error) {
+//             return { value: result };
+//         } else {
+//             var [customers, link] = result;
+//             self.link = link;
+//             return { value: customers };
+//         }
+//     }
+// };

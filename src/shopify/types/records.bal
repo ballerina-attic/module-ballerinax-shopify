@@ -59,12 +59,14 @@ public type Detail record {
 # + sinceId - Retrieve the customers having IDs after the given ID
 # + createdDateFilter - Filters the customers by the date of creation
 # + updatedDateFilter - Filters the customers by the date of updation
+# + limit - Number of records per page. The default value is 50. Maximum value is 250
 # + fields - Retrieve only a specific set fields of a Customer record
 public type CustomerFilter record {|
     int[] ids?;
     int sinceId?;
     DateFilter createdDateFilter?;
     DateFilter updatedDateFilter?;
+    int 'limit?;
     string[] fields?;
 |};
 
@@ -143,30 +145,45 @@ public type ProductFilter record {
 # + defaultAddress - The default address of the Customer
 public type Customer record {
     int id?;
-    string email?;
+    string? email?;
     boolean acceptsMarketing?;
     time:Time createdAt?;
     time:Time updatedAt?;
-    string firstName?;
-    string lastName?;
+    string? firstName?;
+    string? lastName?;
     int ordersCount?;
     CustomerState state?;
     float totalSpent?;
     string? lastOrderId?;
-    string note?;
+    string? note?;
     boolean verifiedEmail?;
     string? multipassIdentifier?;
     boolean taxExempt?;
-    string phone?;
+    string? phone?;
     string tags?;
     string? lastOrderName?;
     string currency?;
     Address[] addresses?;
     time:Time acceptsMarketingUpdatedAt?;
-    MarketingOptLevel marketingOptInLevel?;
+    MarketingOptLevel? marketingOptInLevel?;
     string[] taxExemptions?;
     string adminGraphqlApiId?;
     Address defaultAddress?;
+};
+
+public type NewCustomer record {
+    int id?;
+    string firstName?;
+    string lastName?;
+    string email?;
+    string phone?;
+    boolean verifiedEmail?;
+    Address[] addresses?;
+    string password?;
+    string passwordConfirmation?;
+    boolean sendEmailInvite?;
+    boolean sendEmailWelcome?;
+    boolean acceptsMarketing?;
 };
 
 public type Invite record {

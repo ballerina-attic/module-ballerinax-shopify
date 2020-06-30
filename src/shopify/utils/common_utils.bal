@@ -6,6 +6,7 @@ import ballerina/lang.'int;
 import ballerina/stringutils;
 
 import ballerina/time;
+import ballerina/encoding;
 
 string message = "Not implemented";
 
@@ -52,16 +53,32 @@ function creatRecordArrayFromJsonArray(map<json> jsonValue, string 'field) retur
 
 function checkResponse(http:Response response) returns Error? {
     int statusCode = response.statusCode;
-    if (statusCode == http:STATUS_OK) {
+    if (statusCode == http:STATUS_OK || statusCode == http:STATUS_CREATED || statusCode == http:STATUS_ACCEPTED) {
         return;
     } else {
         var payload = response.getJsonPayload();
         if (payload is json) {
             map<json> payloadMap = <@untainted map<json>>payload;
-            return createError(payloadMap[ERRORS_FIELD].toString());
+            string errorMessage = "";
+            var errorRecord = payloadMap[ERRORS_FIELD];
+            if (errorRecord is map<json>) {
+                errorMessage = createErrorMessageFromJson(<map<json>>errorRecord);
+            } else {
+                errorMessage = errorRecord.toString();
+            }
+            
+            return createError(errorMessage);
         }
         return createError("Invalid response received.");
     }
+}
+
+function createErrorMessageFromJson(map<json> jsonMap) returns string {
+    string result = "";
+    foreach string key in jsonMap.keys() {
+        result += key + " " + jsonMap[key].toString() + "; ";
+    }
+    return result;
 }
 
 function convertJsonKeysToRecordKeys(json jsonValue) returns json {
@@ -88,19 +105,6 @@ function convertJsonKeysToRecordKeys(json jsonValue) returns json {
     }
 }
 
-function convertJsonKeyToRecordKey(string key, json value) returns json {
-    string newKey = convertToCamelCase(key);
-    json result = {
-        newKey: value
-    };
-    return result;
-}
-
-function convertToUnderscoreCase(string value) returns string {
-    string result = stringutils:replaceAll(value, "[A-Z]", "_$0");
-    return result.toLowerAscii();
-}
-
 function convertToCamelCase(string key) returns string {
     string recordKey = "";
     string[] words = stringutils:split(key, "_");
@@ -115,6 +119,35 @@ function convertToCamelCase(string key) returns string {
         i += 1;
     }
     return recordKey;
+}
+
+function convertRecordKeysToJsonKeys(json jsonValue) returns json {
+    if (jsonValue is json[]) {
+        json[] resultJsonArray = [];
+        foreach json value in jsonValue {
+            resultJsonArray.push(convertRecordKeysToJsonKeys(value));
+        }
+        return resultJsonArray;
+    } else if (jsonValue is map<json>) {
+        map<json> resultJson = {};
+        foreach string key in jsonValue.keys() {
+            string newKey = convertToUnderscoreCase(key);
+            json value = jsonValue[key];
+            if (value is json[]) {
+                resultJson[newKey] = convertRecordKeysToJsonKeys(value);
+            } else {
+                resultJson[newKey] = convertRecordKeysToJsonKeys(jsonValue[key]);
+            }
+        }
+        return resultJson;
+    } else {
+        return jsonValue;
+    }
+}
+
+function convertToUnderscoreCase(string value) returns string {
+    string result = stringutils:replaceAll(value, "[A-Z]", "_$0");
+    return result.toLowerAscii();
 }
 
 function getTimeRecordFromTimeString(string? time) returns time:Time|Error? {
@@ -209,6 +242,17 @@ function buildFieldsCommaSeparatedList(string[] array) returns string {
         i += 1;
     }
     return result;
+}
+
+function getLinkFromHeader(http:Response response) returns string|Error {
+    string linkHeader = response.getHeader(LINK_HEADER);
+    string link = stringutils:split(linkHeader, ">")[0];
+    var result = encoding:decodeUriComponent(link.substring(1, link.length()), UTF8);
+    if (result is error) {
+        return createError("Error occurred while retaining the link to the next page.", result);
+    } else {
+        return result;
+    }
 }
 
 function notImplemented() returns Error {

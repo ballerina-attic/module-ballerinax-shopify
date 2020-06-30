@@ -1,14 +1,12 @@
 public type CustomerClient client object {
 
     private Store store;
-    private string apiPath;
 
     # Creates a `CustomerClient` object to handle customer-related operations.
     # 
     # + store - The `shopify:Store` client object
     public function __init(Store store) {
         self.store = store;
-        self.apiPath = store.getApiPath() + CUSTOMER_API_PATH;
     }
 
     # Retrieves the list of customers of the store. This API supports pagination.
@@ -32,8 +30,8 @@ public type CustomerClient client object {
     # 
     # + customer - The customer record with the details of the customer
     # + return - The created `Customer` record if the operation succeeded, an `Error` otherwise
-    public remote function create(Customer customer) returns @tainted Customer|Error {
-        return createCustomer(customer);
+    public remote function create(NewCustomer customer) returns @tainted Customer|Error {
+        return createCustomer(self, customer);
     }
 
     # Updates the details of a given customer. 
@@ -46,10 +44,10 @@ public type CustomerClient client object {
 
     # Removes a given customer from the store. If the customer has any existing orders, the customer cannot be removed.
     # 
-    # + customer - The `Customer` record which should be removed
+    # + id - The ID of the customer to be removed
     # + return - The updated `Customer` record if the operation succeeded, or else an `Error`
-    public remote function remove(Customer customer) returns Error? {
-        return removeCustomer(customer);
+    public remote function remove(int id) returns Error? {
+        return removeCustomer(self, id);
     }
 
     # Retrieves the total number of customers in the store.
@@ -63,7 +61,7 @@ public type CustomerClient client object {
     # 
     # + id - The ID of the customer to retrieve the orders
     # + return - An array of `Order` records of the given customer if the operation succeeded, or else an `Error`
-    public remote function getOrders(string id) returns @tainted Order[]|Error {
+    public remote function getOrders(int id) returns @tainted Order[]|Error {
         return getCustomerOrders(id);
     }
 
@@ -71,8 +69,8 @@ public type CustomerClient client object {
     # 
     # + id - The ID of the customer to be activated
     # + return - The account verification URL if the operation succeeded, or else an `Error`
-    public remote function getActivationUrl(string id) returns string|Error {
-        return getCustomerActivationUrl(id);
+    public remote function getActivationUrl(int id) returns @tainted string|Error {
+        return getCustomerActivationUrl(self, id);
     }
 
     # Sends an invitation to the given customer.
@@ -80,12 +78,8 @@ public type CustomerClient client object {
     # + id - The ID of the customer to send the invite
     # + invite - The `Invite` record to be sent
     # + return - The `Invite` sent to the customer, or else an `Error`
-    public remote function sendInvitation(string id, Invite invite) returns @tainted Invite|Error {
+    public remote function sendInvitation(int id, Invite invite) returns @tainted Invite|Error {
         return sendCustomerInvitation(id, invite);
-    }
-
-    function getApiPath() returns string {
-        return self.apiPath;
     }
 
     function getStore() returns Store {

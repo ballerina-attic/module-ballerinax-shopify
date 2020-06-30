@@ -1,10 +1,11 @@
+// Paths
 const API_PATH = "/admin/api/2020-04";
 const SHOPIFY_URL = ".myshopify.com";
 const HTTPS = "https://";
 
 const CUSTOMER_API_PATH = "/customers";
 const COUNT_PATH = "/count";
-
+const ACTIVATION_URL = "account_activation_url";
 const JSON = ".json";
 
 const OAUTH_HEADER_KEY = "X-Shopify-Access-Token";
@@ -47,3 +48,11 @@ const COUNT = "count";
 // Query parameter fields
 const UPDATED_BEFORE = "updated_at_max";
 const UPDATED_AFTER = "updated_at_min";
+
+const PAGE_MAX_LIMIT = 250;
+
+// Headers
+const LINK_HEADER = "link";
+
+// Charset
+const UTF8 = "utf-8";
