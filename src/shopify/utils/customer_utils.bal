@@ -2,8 +2,7 @@ import ballerina/http;
 import ballerina/lang.'string;
 import ballerina/time;
 
-// TODO: Handle pagination
-function getAllCustomers(CustomerClient customerClient, CustomerFilter? filter) returns @tainted Customer[]|Error {
+function getAllCustomers(CustomerClient customerClient, CustomerFilter? filter) returns @tainted stream<Customer[]>|Error {
     string queryParams = "";
     if (filter is CustomerFilter) {
         var result = trap buildQueryParamters(filter);
@@ -13,16 +12,9 @@ function getAllCustomers(CustomerClient customerClient, CustomerFilter? filter) 
         queryParams = <string>result;
     }
     string path = CUSTOMER_API_PATH + JSON + queryParams;
-    var result = getCustomersFromPath(customerClient, path);
-    if (result is Error) {
-        return result;
-    } else {
-        var [customers, link] = result;
-        return customers;
-    }
 
-    // CustomerStream customerStream = new(path, customerClient);
-    // return new stream<Customer[]|Error>(customerStream);
+    CustomerStream customerStream = new (path, customerClient);
+    return new stream <Customer[]|Error, Error>(customerStream);
 }
 
 function getCustomer(int id, string[]? fields) returns Customer|Error {
@@ -203,7 +195,7 @@ function buildQueryParamters(CustomerFilter filter) returns string {
     }
 }
 
-function getCustomersFromPath(CustomerClient customerClient, string path) returns @tainted [Customer[], string]|Error {
+function getCustomersFromPath(CustomerClient customerClient, string path) returns @tainted [Customer[], string?]|Error {
     http:Client httpClient = customerClient.getStore().getHttpClient();
     http:Request request = customerClient.getStore().getRequest();
     var result = httpClient->get(path, request);
@@ -211,7 +203,7 @@ function getCustomersFromPath(CustomerClient customerClient, string path) return
         return createError("Could not retrive data from the Shopify server.", result);
     }
     http:Response response = <http:Response>result;
-    string link = check getLinkFromHeader(response);
+    string? link = check getLinkFromHeader(response);
 
     // Check status code and return error if theres any
     check checkResponse(response);
@@ -232,26 +224,27 @@ function getCustomersFromPath(CustomerClient customerClient, string path) return
     return [customers, link];
 }
 
-// type CustomerStream object {
-//     string? link;
-//     CustomerClient customerClient;
-//     public function __init(string link, CustomerClient customerClient) {
-//         self.link = link;
-//         self.customerClient = customerClient;
-//     }
+type CustomerStream object {
+    string? link;
+    CustomerClient customerClient;
 
-//     function next() returns @tainted record {| Customer[]|Error value; |}? {
-//         if (self.link is ()) {
-//             return;
-//         }
-//         string linkString = <string>self.link;
-//         var result = getCustomersFromPath(self.customerClient, linkString);
-//         if (result is Error) {
-//             return { value: result };
-//         } else {
-//             var [customers, link] = result;
-//             self.link = link;
-//             return { value: customers };
-//         }
-//     }
-// };
+    public function __init(string? link, CustomerClient customerClient) {
+        self.link = link;
+        self.customerClient = customerClient;
+    }
+
+    public function next() returns @tainted record {|Customer[]|Error value;|}|Error? {
+        if (self.link is ()) {
+            return;
+        }
+        string linkString = <string>self.link;
+        var result = getCustomersFromPath(self.customerClient, linkString);
+        if (result is Error) {
+            return {value: result};
+        } else {
+            var [customers, link] = result;
+            self.link = link;
+            return {value: customers};
+        }
+    }
+};

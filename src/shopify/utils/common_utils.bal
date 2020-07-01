@@ -244,14 +244,35 @@ function buildFieldsCommaSeparatedList(string[] array) returns string {
     return result;
 }
 
-function getLinkFromHeader(http:Response response) returns string|Error {
-    string linkHeader = response.getHeader(LINK_HEADER);
-    string link = stringutils:split(linkHeader, ">")[0];
-    var result = encoding:decodeUriComponent(link.substring(1, link.length()), UTF8);
+function getLinkFromHeader(http:Response response) returns string|Error? {
+    if (!response.hasHeader(LINK_HEADER)) {
+        return;
+    }
+
+    string? link = check retrieveLinkHeaderValues(response.getHeader(LINK_HEADER));
+    if (link is ()) {
+        return link;
+    }
+    string linkString = <string>link;
+    var result = encoding:decodeUriComponent(linkString, UTF8);
     if (result is error) {
         return createError("Error occurred while retaining the link to the next page.", result);
     } else {
-        return result;
+        return stringutils:split(result, API_PATH)[1];
+    }
+}
+
+// Ignore the previous value since we do not use it here, because
+function retrieveLinkHeaderValues(string linkHeaderValue) returns string|Error? {
+    string[] pages = stringutils:split(linkHeaderValue, ",");
+    foreach string page in pages {
+        string link = stringutils:replaceAll(stringutils:split(page, ">")[0], " ", "");
+        link = link.substring(1, link.length());
+        string pageName = stringutils:split(page, "rel=")[1];
+        pageName = stringutils:replaceAll(pageName, "\"", "");
+        if (pageName == "next") {
+            return link;
+        }
     }
 }
 

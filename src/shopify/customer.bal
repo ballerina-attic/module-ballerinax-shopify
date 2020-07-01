@@ -13,7 +13,7 @@ public type CustomerClient client object {
     # 
     # + filter - Specify the filters when retrieving the customers
     # + return - An array of `Customer` records if the request is successful, or else an `Error` 
-    public remote function getAll(CustomerFilter? filter = ()) returns @tainted Customer[]|Error {
+    public remote function getAll(CustomerFilter? filter = ()) returns @tainted stream<Customer[]|Error>|Error {
         return getAllCustomers(self, filter);
     }
 
