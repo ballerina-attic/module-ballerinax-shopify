@@ -17,13 +17,16 @@ function getAllCustomers(CustomerClient customerClient, CustomerFilter? filter) 
     return new stream <Customer[]|Error, Error>(customerStream);
 }
 
-function getCustomer(int id, string[]? fields) returns Customer|Error {
-    return notImplemented();
+function getCustomer(CustomerClient customerClient, int id, string[]? fields) returns @tainted Customer|Error {
+    string path = CUSTOMER_API_PATH + "/" + id.toString() + JSON;
+    http:Response response = check getResponseForGetCall(customerClient.getStore(), path);
+    json payload = check getJsonPayload(response);
+    json customerJson = <json>payload.customer;
+    return getCustomerFromJson(customerJson);
 }
 
 function createCustomer(CustomerClient customerClient, NewCustomer customer) returns @tainted Customer|Error {
     string path = CUSTOMER_API_PATH + JSON;
-    http:Client httpClient = customerClient.getStore().getHttpClient();
     http:Request request = customerClient.getStore().getRequest();
 
     json newCustomerJson = <json>json.constructFrom(customer);
@@ -32,52 +35,37 @@ function createCustomer(CustomerClient customerClient, NewCustomer customer) ret
         customer: newCustomerJson
     };
     request.setJsonPayload(<@untainted>payload);
-
-    var result = httpClient->post(path, request);
-    if (result is error) {
-        return createError("Could not retrive data from the Shopify server.", result);
-    }
-    http:Response response = <http:Response>result;
-
-    // Check status code and return error if theres any
-    check checkResponse(response);
+    http:Response response = check getResponseForPostCall(customerClient.getStore(), path, request);
 
     json responsePayload = check getJsonPayload(response);
     json customerJson = <json>responsePayload.customer;
     return getCustomerFromJson(customerJson);
 }
 
-function updateCustomer(Customer customer) returns Customer|Error {
-    return notImplemented();
+function updateCustomer(CustomerClient customerClient, Customer customer, int id) returns @tainted Customer|Error {
+    string path = CUSTOMER_API_PATH + "/" + id.toString() + JSON;
+    json customerJson = <json>json.constructFrom(customer);
+    customerJson = convertRecordKeysToJsonKeys(customerJson);
+    json payload = {
+        customer: customerJson
+    };
+    http:Request request = customerClient.getStore().getRequest();
+    request.setJsonPayload(<@untainted>payload);
+    http:Response response = check getResponseForPutCall(customerClient.getStore(), path, request);
+
+    json responsePayload = check getJsonPayload(response);
+    json updatedCustomerJson = <json>responsePayload.customer;
+    return getCustomerFromJson(updatedCustomerJson);
 }
 
 function removeCustomer(CustomerClient customerClient, int id) returns Error? {
     string path = CUSTOMER_API_PATH + "/" + id.toString() + JSON;
-
-    http:Client httpClient = customerClient.getStore().getHttpClient();
-    http:Request request = customerClient.getStore().getRequest();
-    var result = httpClient->delete(path, request);
-    if (result is error) {
-        return createError("Could not retrive data from the Shopify server.", result);
-    }
-    http:Response response = <http:Response>result;
-
-    return checkResponse(response);
+    http:Response response = check getResponseForDeleteCall(customerClient.getStore(), path);
 }
 
 function getCustomerCount(CustomerClient customerClient) returns @tainted int|Error {
     string path = CUSTOMER_API_PATH + COUNT_PATH + JSON;
-    http:Client httpClient = customerClient.getStore().getHttpClient();
-    http:Request request = customerClient.getStore().getRequest();
-    var result = httpClient->get(path, request);
-
-    if (result is error) {
-        return createError("Could not retrive data from the Shopify server.", result);
-    }
-    http:Response response = <http:Response>result;
-
-    // Check status code and return error if theres any
-    check checkResponse(response);
+    http:Response response = check getResponseForGetCall(customerClient.getStore(), path);
 
     json payload = check getJsonPayload(response);
     map<json> jsonMap = <map<json>>payload;
@@ -90,17 +78,8 @@ function getCustomerOrders(int id) returns Order[]|Error {
 
 function getCustomerActivationUrl(CustomerClient customerClient, int id) returns @tainted string|Error {
     string path = CUSTOMER_API_PATH + "/" + id.toString() + "/" + ACTIVATION_URL + JSON;
-    http:Client httpClient = customerClient.getStore().getHttpClient();
-    http:Request request = customerClient.getStore().getRequest();
-    var result = httpClient->get(path, request);
+    http:Response response = check getResponseForGetCall(customerClient.getStore(), path);
 
-    if (result is error) {
-        return createError("Could not retrive data from the Shopify server.", result);
-    }
-    http:Response response = <http:Response>result;
-
-    // Check status code and return error if theres any
-    check checkResponse(response);
     map<json> responsePayload = <map<json>>check getJsonPayload(response);
     var activationUrl = trap responsePayload[ACTIVATION_URL].toString();
     if (activationUrl is error) {
@@ -196,17 +175,8 @@ function buildQueryParamters(CustomerFilter filter) returns string {
 }
 
 function getCustomersFromPath(CustomerClient customerClient, string path) returns @tainted [Customer[], string?]|Error {
-    http:Client httpClient = customerClient.getStore().getHttpClient();
-    http:Request request = customerClient.getStore().getRequest();
-    var result = httpClient->get(path, request);
-    if (result is error) {
-        return createError("Could not retrive data from the Shopify server.", result);
-    }
-    http:Response response = <http:Response>result;
+    http:Response response = check getResponseForGetCall(customerClient.getStore(), path);
     string? link = check getLinkFromHeader(response);
-
-    // Check status code and return error if theres any
-    check checkResponse(response);
 
     json payload = check getJsonPayload(response);
     json[] customersJson = <json[]>payload.customers;

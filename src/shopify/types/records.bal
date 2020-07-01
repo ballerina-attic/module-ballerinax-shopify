@@ -171,20 +171,37 @@ public type Customer record {
     Address defaultAddress?;
 };
 
-public type NewCustomer record {
-    int id?;
+// TODO: MetaField support
+# Represents a new Shopify customer. This record is used for create a new Customer.
+# 
+# + firstName - The first name of the Customer
+# + lastName - The last Name of the Customer
+# + email - The email address of the customer
+# + phone - The phone number of the Customer
+# + tags - The tags related to the Customer
+# + verifiedEmail - Whether the email is verified or not
+# + addresses - The set of Addresses related to the Customer
+# + password - The password of the Customer
+# + passwordConfirmation - Confirm the password
+# + note - Notes about the Customer
+# + sendEmailInvite - Whether to send the invite to the Customer when creating
+# + sendEmailWelcome - Whether to send the welcome email to the Customer
+# + acceptsMarketing - Whether the Customer accepts the marketing emails
+public type NewCustomer record {|
     string firstName?;
     string lastName?;
     string email?;
     string phone?;
+    string tags?;
     boolean verifiedEmail?;
     Address[] addresses?;
     string password?;
     string passwordConfirmation?;
+    string note?;
     boolean sendEmailInvite?;
     boolean sendEmailWelcome?;
     boolean acceptsMarketing?;
-};
+|};
 
 public type Invite record {
 

@@ -1,12 +1,12 @@
 import ballerina/auth;
+import ballerina/encoding;
 import ballerina/http;
 import ballerina/io;
 import ballerina/lang.'float;
 import ballerina/lang.'int;
-import ballerina/stringutils;
 
+import ballerina/stringutils;
 import ballerina/time;
-import ballerina/encoding;
 
 string message = "Not implemented";
 
@@ -51,10 +51,10 @@ function creatRecordArrayFromJsonArray(map<json> jsonValue, string 'field) retur
     }
 }
 
-function checkResponse(http:Response response) returns Error? {
+function checkResponse(http:Response response) returns http:Response|Error {
     int statusCode = response.statusCode;
     if (statusCode == http:STATUS_OK || statusCode == http:STATUS_CREATED || statusCode == http:STATUS_ACCEPTED) {
-        return;
+        return response;
     } else {
         var payload = response.getJsonPayload();
         if (payload is json) {
@@ -66,7 +66,7 @@ function checkResponse(http:Response response) returns Error? {
             } else {
                 errorMessage = errorRecord.toString();
             }
-            
+
             return createError(errorMessage);
         }
         return createError("Invalid response received.");
@@ -262,7 +262,7 @@ function getLinkFromHeader(http:Response response) returns string|Error? {
     }
 }
 
-// Ignore the previous value since we do not use it here, because
+// Ignore the "previous" value since we do not use it here, because stream does not allow to access more than once
 function retrieveLinkHeaderValues(string linkHeaderValue) returns string|Error? {
     string[] pages = stringutils:split(linkHeaderValue, ",");
     foreach string page in pages {
@@ -274,6 +274,52 @@ function retrieveLinkHeaderValues(string linkHeaderValue) returns string|Error? 
             return link;
         }
     }
+}
+
+function getResponseForGetCall(Store store, string path) returns http:Response|Error {
+    http:Client httpClient = store.getHttpClient();
+    http:Request request = store.getRequest();
+    var result = httpClient->get(path, request);
+    if (result is error) {
+        return createError("Could not retrive data from the Shopify server.", result);
+    }
+    http:Response response = <http:Response>result;
+    // Check status code and return error if theres any
+    return checkResponse(response);
+}
+
+function getResponseForDeleteCall(Store store, string path) returns http:Response|Error {
+    http:Client httpClient = store.getHttpClient();
+    http:Request request = store.getRequest();
+    var result = httpClient->delete(path, request);
+    if (result is error) {
+        return createError("Could not retrive data from the Shopify server.", result);
+    }
+    http:Response response = <http:Response>result;
+    // Check status code and return error if theres any
+    return checkResponse(response);
+}
+
+function getResponseForPostCall(Store store, string path, http:Request request) returns http:Response|Error {
+    http:Client httpClient = store.getHttpClient();
+    var result = httpClient->post(path, request);
+    if (result is error) {
+        return createError("Could not retrive data from the Shopify server.", result);
+    }
+    http:Response response = <http:Response>result;
+    // Check status code and return error if theres any
+    return checkResponse(response);
+}
+
+function getResponseForPutCall(Store store, string path, http:Request request) returns http:Response|Error {
+    http:Client httpClient = store.getHttpClient();
+    var result = httpClient->put(path, request);
+    if (result is error) {
+        return createError("Could not retrive data from the Shopify server.", result);
+    }
+    http:Response response = <http:Response>result;
+    // Check status code and return error if theres any
+    return checkResponse(response);
 }
 
 function notImplemented() returns Error {

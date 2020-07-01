@@ -2,13 +2,15 @@ import ballerina/test;
 
 import ballerina/time;
 
+const JOHN_DOE_ID = 3663856566437;
+
 time:Time createdTime = <time:Time>getTimeRecordFromTimeString("2020-06-10T04:27:07-04:00");
 time:Time updatedTime = <time:Time>getTimeRecordFromTimeString("2020-06-10T04:27:07-04:00");
 time:Time marketingUpdatedTime = <time:Time>getTimeRecordFromTimeString("2020-06-10T04:27:07-04:00");
 
 Address address = {
     id: 4467764691109,
-    customerId: 3663856566437,
+    customerId: JOHN_DOE_ID,
     firstName: "John",
     lastName: "Doe",
     company: "example",
@@ -26,7 +28,7 @@ Address address = {
     'default: true
 };
 Customer customer = {
-    id: 3663856566437,
+    id: JOHN_DOE_ID,
     email: "john.doe@example.com",
     acceptsMarketing: true,
     createdAt: createdTime,
@@ -61,15 +63,14 @@ StoreConfiguration storeConfiguration = {
     authConfiguration: oAuthConfiguration
 };
 Store store = new (storeConfiguration);
+CustomerClient customerClient = store.getCustomerClient();
 
 @test:Config {}
 function getAllCustomersTest() {
     Customer[] customers = [customer];
 
-    CustomerClient customerClient = store.getCustomerClient();
-
     CustomerFilter filter = {
-        ids: [3663856566437]
+        ids: [JOHN_DOE_ID]
     };
     var result = customerClient->getAll(filter);
     if (result is Error) {
@@ -82,17 +83,15 @@ function getAllCustomersTest() {
 @test:Config {}
 function getAllCustomersWithFilters() {
     Customer expectedCustomer = {
-        id: 3663856566437,
+        id: JOHN_DOE_ID,
         email: "john.doe@example.com",
         firstName: "John",
         lastName: "Doe"
     };
     Customer[] expectedCustomers = [expectedCustomer];
 
-    CustomerClient customerClient = store.getCustomerClient();
-
     CustomerFilter filter = {
-        ids: [3663856566437],
+        ids: [JOHN_DOE_ID],
         createdDateFilter: {
             after: createdTime
         },
@@ -106,11 +105,20 @@ function getAllCustomersWithFilters() {
     }
 }
 
+@test:Config {}
+function getCustomerTest() {
+    var result = customerClient->get(JOHN_DOE_ID);
+    if (result is Error) {
+        test:assertFail(result.toString());
+    } else {
+        test:assertEquals(result, customer);
+    }
+}
+
 @test:Config {
     dependsOn: ["addCustomerTest", "deleteCustomerTest"]
 }
 function getCustomerCountTest() {
-    CustomerClient customerClient = store.getCustomerClient();
     int|Error result = customerClient->getCount();
     if (result is Error) {
         test:assertFail(result.toString());
@@ -124,13 +132,11 @@ int customerId = 0;
 @test:Config {}
 function addCustomerTest() {
     NewCustomer customer = {
-        id: 85418,
         email: "john.lennon@example.com",
         firstName: "John",
         lastName: "Lennon",
         acceptsMarketing: true
     };
-    CustomerClient customerClient = store.getCustomerClient();
     Customer|Error result = customerClient->create(customer);
     if (result is Error) {
         test:assertFail(result.toString());
@@ -143,10 +149,19 @@ function addCustomerTest() {
     dependsOn: ["addCustomerTest"]
 }
 function deleteCustomerTest() {
-    CustomerClient customerClient = store.getCustomerClient();
     Error? result = customerClient->remove(customerId);
     if (result is Error) {
         test:assertFail(result.toString());
+    }
+}
+
+@test:Config {}
+function deleteNonExistingCustomerTest() {
+    Error? result = customerClient->remove(9999);
+    if (result is Error) {
+        test:assertEquals(result.detail().message, "Not Found");
+    } else {
+        test:assertFail("Non existing customer deletion did not returned an error");
     }
 }
 
@@ -187,8 +202,6 @@ function testGetAllCustomersWithPagination() {
     Customer[] expectedCustomers1 = [expectedCustomer1, expectedCustomer2];
     Customer[] expectedCustomers2 = [expectedCustomer3, expectedCustomer4];
     Customer[] expectedCustomers3 = [expectedCustomer5];
-
-    CustomerClient customerClient = store.getCustomerClient();
 
     CustomerFilter filter = {
         limit: 2,

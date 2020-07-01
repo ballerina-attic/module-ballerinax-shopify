@@ -23,7 +23,7 @@ public type CustomerClient client object {
     # + fields - Specify the list of fields of the `Customer` record to retrieve
     # + return - The `Customer` record of the given ID if the operation succeeded, or else an `Error`
     public remote function get(int id, string[]? fields = ()) returns @tainted Customer|Error {
-        return getCustomer(id, fields);
+        return getCustomer(self, id, fields);
     }
 
     # Creates a new customer in the store and returns the created `Customer` record. This returned record includes all the details of the customer including the values set by the Shopify admin API.
@@ -39,7 +39,12 @@ public type CustomerClient client object {
     # + customer - The `Customer` record which should be updated, with the updated field values
     # + return - The updated `Customer` record if the operation succeeded, or else an `Error`
     public remote function update(Customer customer) returns @tainted Customer|Error {
-        return updateCustomer(customer);
+        var id = customer?.id;
+        if (id is ()) {
+            return createError("Customer must have an ID to update");
+        } else {
+            return updateCustomer(self, customer, id);
+        }
     }
 
     # Removes a given customer from the store. If the customer has any existing orders, the customer cannot be removed.
