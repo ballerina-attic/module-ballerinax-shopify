@@ -10,3 +10,6 @@ public type CustomerState CUSTOMER_DISABLED|CUSTOMER_ENABLED;
 public type MarketingOptLevel MARKETING_SINGLE;
 
 public type PublishedStatus PRODUCT_PUBLISHED|PRODUCT_UNPUBLISHED|PRODUCT_ANY;
+
+public type MetaFieldValueType INTEGER|STRING|JSON_STRING;
+public type InventoryPolicy INVENTORY_DENY|INVENTORY_CONTINUE;

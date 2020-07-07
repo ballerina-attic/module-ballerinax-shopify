@@ -1,9 +1,10 @@
 // Paths
+const HTTPS = "https://";
 const API_PATH = "/admin/api/2020-04";
 const SHOPIFY_URL = ".myshopify.com";
-const HTTPS = "https://";
-
 const CUSTOMER_API_PATH = "/customers";
+const ORDER_API_PATH = "/orders";
+const PRODUCT_API_PATH = "/products";
 const COUNT_PATH = "/count";
 const ACTIVATION_URL = "account_activation_url";
 const JSON = ".json";
@@ -56,3 +57,12 @@ const LINK_HEADER = "link";
 
 // Charset
 const UTF8 = "utf-8";
+
+// MetaField Value Types
+const INTEGER = "integer";
+const STRING = "srting";
+const JSON_STRING = "json_string";
+
+// Inventory Policy
+public const INVENTORY_DENY = "deny";
+public const INVENTORY_CONTINUE = "continue";

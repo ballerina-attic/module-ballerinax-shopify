@@ -206,6 +206,15 @@ function getIntValueFromJson(string key, map<json> jsonMap) returns int|Error {
     return <int>result;
 }
 
+function getJsonArrayFromJson(map<json> jsonMap, string key) returns json[] {
+    var result = jsonMap.remove(key);
+    if (result is json[]) {
+        return result;
+    } else {
+        return [];
+    }
+}
+
 function getJsonPayload(http:Response response) returns @tainted json|Error {
     json|error payload = response.getJsonPayload();
     if (payload is error) {

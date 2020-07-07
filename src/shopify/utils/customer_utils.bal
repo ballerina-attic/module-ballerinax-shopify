@@ -5,7 +5,7 @@ import ballerina/time;
 function getAllCustomers(CustomerClient customerClient, CustomerFilter? filter) returns @tainted stream<Customer[]>|Error {
     string queryParams = "";
     if (filter is CustomerFilter) {
-        var result = trap buildQueryParamters(filter);
+        var result = trap buildQueryParamtersFromCustomerFilter(filter);
         if (result is Error) {
             return result;
         }
@@ -107,7 +107,7 @@ function getCustomerFromJson(json jsonValue) returns Customer|Error {
     var customerFromJson = Customer.constructFrom(customerJson);
 
     if (customerFromJson is error) {
-        return createError("Error occurred while constructiong the Customer record.", customerFromJson);
+        return createError("Error occurred while constructing the Customer record.", customerFromJson);
     }
     Customer customer = <Customer>customerFromJson;
     if (createdAt is time:Time) {
@@ -125,7 +125,7 @@ function getCustomerFromJson(json jsonValue) returns Customer|Error {
     return customer;
 }
 
-function buildQueryParamters(CustomerFilter filter) returns string {
+function buildQueryParamtersFromCustomerFilter(CustomerFilter filter) returns string {
     string queryParams = "";
         foreach var [key, value] in filter.entries() {
         if (key == IDS && filter?.ids is int[]) {

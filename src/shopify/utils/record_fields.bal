@@ -19,10 +19,18 @@ const COUNTRY_CODE = "country_code";
 const COUNTRY_NAME = "country_name";
 const DEFAULT = "default";
 
-// Customer
-const ADDRESS = "address";
+// Common
 const CREATED_AT = "createdAt";
 const UPDATED_AT = "updatedAt";
+
+// Product
+const PUBLISHED_AT = "publishedAt";
+const VARIANTS = "variants";
+const IMAGES = "images";
+const IMAGE = "image";
+
+// Customer
+const ADDRESS = "address";
 const MARKETING_UPDATED_AT = "acceptsMarketingUpdatedAt";
 const TOTAL_SPENT = "totalSpent";
 

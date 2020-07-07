@@ -208,13 +208,94 @@ public type Invite record {
 };
 
 public type Order record {
-    string? id;
+    int appId?;
     FulfillmentStatus? fulfillmentStatus;
 };
 
-public type Product record {
+public type Product record {|
+    int id?;
+    string title?;
+    string bodyHtml?;
+    string vendor?;
+    string productType?;
+    string 'handle?;
+    time:Time createdAt?;
+    time:Time updatedAt?;
+    time:Time publishedAt?;
+    string? templateSuffix?;
+    string publishedScope?;
+    string tags?;
+    string adminGraphqlApiId?;
+    ProductVariant[] variants?;
+    Option[] options?;
+    Image[] images?;
+    Image? image?;
+|};
 
+
+// # + metafieldsGlobalTitleTag - The `<meta name = 'title'>` tag value. This is used for SEO purposes
+// # + metafieldsGlobalDescriptionTag - The `<meta name = 'description'>` tag value. This is used for SEO purposes
+public type NewProduct record {|
+    string title;
+    string bodyHtml?;
+    string vendor?;
+    string productType?;
+    ProductVariant[] variants?;
+    Option[] options?;
+    NewMetaField[] metafields?;
+    boolean published = true;
+    string metafieldsGlobalTitleTag?;
+    string metafieldsGlobalDescriptionTag?;
+|};
+
+public type Option record {
+    int id?;
+    int productId?;
+    string name;
+    string[] values;
+    int position?;
 };
+
+public type ProductVariant record {|
+    int id?;
+    int productId?;
+    string title?;
+    string price;
+    string sku?;
+    int position?;
+    InventoryPolicy inventoryPolicy?;
+    string? compareAtPrice?;
+    string fulfillmentService?;
+    string? inventoryManagement?;
+    string? option1?;
+    string? option2?;
+    string? option3?;
+    time:Time createdAt?;
+    time:Time updatedAt?;
+    boolean taxable?;
+    string? barcode?;
+    int grams?;
+    string? imageId?;
+    float weight?;
+    string weightUnit?;
+    int inventoryItemId?;
+    int inventoryQuantity?;
+    int oldInventoryQuantity?;
+    boolean requiresShipping?;
+    string adminGraphqlApiId?;
+|};
+
+public type Image record {|
+    int id;
+    int productId;
+    int position;
+    time:Time createdAt;
+    time:Time updatedAt;
+    int width?;
+    int height?;
+    string src?;
+    int[] variantIds?;
+|};
 
 public type Address record {
     int id?;
@@ -234,4 +315,11 @@ public type Address record {
     string countryCode?;
     string countryName?;
     boolean 'default?;
+};
+
+public type NewMetaField record {
+    string key;
+    string value;
+    MetaFieldValueType valueType;
+    string namespace;
 };
