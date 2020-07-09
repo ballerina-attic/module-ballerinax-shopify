@@ -1,17 +1,36 @@
 import ballerina/http;
 import ballerina/time;
 
-function getAllProducts(ProductFilter filter) returns Product[]|Error {
+function getAllProducts(ProductClient productClient, ProductFilter? filter) returns @tainted stream<Product[]>|Error {
+    string queryParams = "";
+    if (filter is ProductFilter) {
+        queryParams = check buildQueryParamtersFromFilter(filter);
+    }
+    string path = PRODUCT_API_PATH + JSON + queryParams;
 
-    return notImplemented();
+    ProductStream productStream = new (path, productClient);
+    return new stream <Product[]|Error, Error>(productStream);
 }
 
-function getProductCount() returns int {
-    return 0;
+function getProductCount(ProductClient productClient, ProductCountFilter? filter) returns @tainted int|Error {
+    string queryParams = "";
+    if (filter is ProductCountFilter) {
+        queryParams = check buildQueryParamtersFromFilter(filter);
+    }
+    string path = PRODUCT_API_PATH + COUNT_PATH + JSON;
+    http:Response response = check getResponseForGetCall(productClient.getStore(), path);
+
+    json payload = check getJsonPayload(response);
+    map<json> jsonMap = <map<json>>payload;
+    return getIntValueFromJson(COUNT, jsonMap);
 }
 
-function getProduct(ProductClient productClient, int id) returns @tainted Product|Error {
-    string path = PRODUCT_API_PATH + "/" + id.toString() + JSON;
+function getProduct(ProductClient productClient, int id, string[]? fields) returns @tainted Product|Error {
+    string queryParams = "";
+    if (fields is string[]) {
+        queryParams = "?" + FIELDS + "=" + buildCommaSeparatedListFromArray(fields);
+    }
+    string path = PRODUCT_API_PATH + "/" + id.toString() + JSON + queryParams;
     http:Response response = check getResponseForGetCall(productClient.getStore(), path);
     json payload = check getJsonPayload(response);
     json productJson = <json>payload.product;
@@ -35,13 +54,25 @@ function createProduct(ProductClient productClient, NewProduct product) returns 
     return getProductFromJson(productJson);
 }
 
-function updateProduct() returns Product|Error {
-    return notImplemented();
+function updateProduct(ProductClient productClient, Product product, int id) returns @tainted Product|Error {
+    string path = PRODUCT_API_PATH + "/" + id.toString() + JSON;
+    json productJson = <json>json.constructFrom(product);
+    productJson = convertRecordKeysToJsonKeys(productJson);
+    json payload = {
+        product: productJson
+    };
+    http:Request request = productClient.getStore().getRequest();
+    request.setJsonPayload(<@untainted>payload);
+    http:Response response = check getResponseForPutCall(productClient.getStore(), path, request);
+
+    json responsePayload = check getJsonPayload(response);
+    json updatedProductJson = <json>responsePayload.product;
+    return getProductFromJson(updatedProductJson);
 }
 
 function deleteProduct(ProductClient productClient, int id) returns Error? {
     string path = PRODUCT_API_PATH + "/" + id.toString() + JSON;
-    http:Response response = check getResponseForDeleteCall(productClient.getStore(), path);
+    _ = check getResponseForDeleteCall(productClient.getStore(), path);
 }
 
 
@@ -50,25 +81,33 @@ function getProductFromJson(json jsonValue) returns Product|Error {
     string? createdAtString = getValueFromJson(CREATED_AT, productJson);
     string? updatedAtString = getValueFromJson(UPDATED_AT, productJson);
     string? publishedAtString = getValueFromJson(PUBLISHED_AT, productJson);
-    json[] variantsJsonArray = getJsonArrayFromJson(productJson, VARIANTS);
-    json[] imagesJsonArray = getJsonArrayFromJson(productJson, IMAGES);
+    json[]? variantsJsonArray = getJsonArrayFromJson(VARIANTS, productJson);
+    json[]? imagesJsonArray = getJsonArrayFromJson(IMAGES, productJson);
 
-    ProductVariant[] variants = [];
-    foreach json value in variantsJsonArray {
-        ProductVariant variant = check getVariantFromJson(value);
-        variants.push(variant);
+    ProductVariant[]? variants = ();
+    if (variantsJsonArray is json[]) {
+        ProductVariant[] variantArray = [];
+        foreach json value in variantsJsonArray {
+            ProductVariant variant = check getVariantFromJson(value);
+            variantArray.push(variant);
+        }
+        variants = variantArray;
     }
 
-    Image[] images = [];
-    foreach json value in imagesJsonArray {
-        Image? image = check getImageFromJson(value);
-        if (image is Image) {
-            images.push(image);
+    Image[]? images = ();
+    if (productJson.hasKey(IMAGE) && imagesJsonArray is json[]) {
+        Image[] imageArray = [];
+        foreach json value in imagesJsonArray {
+            if (value is map<json>) {
+                Image image = check getImageFromJson(value);
+                imageArray.push(image);
+            }
         }
+        images = imageArray;
     }
 
     Image? image = ();
-    if (productJson.hasKey(IMAGE)) {
+    if (productJson.hasKey(IMAGE) && productJson[IMAGE] is map<json>) {
         json imageJson = productJson.remove(IMAGE);
         image = check getImageFromJson(imageJson);
     }
@@ -83,7 +122,16 @@ function getProductFromJson(json jsonValue) returns Product|Error {
         return createError("Error occurred while constructing the Product record.", productFromJson);
     }
     Product product = <Product>productFromJson;
-    product.variants = variants;
+
+    if (image is Image) {
+        product.image = image;
+    }
+    if (variants is ProductVariant[]) {
+        product.variants = variants;
+    }
+    if (images is Image[]) {
+        product.images = images;
+    }
     if (createdAt is time:Time) {
         product.createdAt = createdAt;
     }
@@ -93,7 +141,6 @@ function getProductFromJson(json jsonValue) returns Product|Error {
     if (publishedAt is time:Time) {
         product.publishedAt = publishedAt;
     }
-    product.image = image;
     return product;
 }
 
@@ -119,10 +166,7 @@ function getVariantFromJson(json value) returns ProductVariant|Error {
     return variant;
 }
 
-function getImageFromJson(json value) returns Image|Error? {
-    if (value is ()) {
-        return;
-    }
+function getImageFromJson(json value) returns Image|Error {
     map<json> imageJson = <map<json>>convertJsonKeysToRecordKeys(value);
     string? createdAtString = getValueFromJson(CREATED_AT, imageJson);
     string? updatedAtString = getValueFromJson(UPDATED_AT, imageJson);
@@ -143,3 +187,48 @@ function getImageFromJson(json value) returns Image|Error? {
     }
     return image;
 }
+
+function getProductsFromPath(ProductClient productClient, string path) returns @tainted [Product[], string?]|Error {
+    http:Response response = check getResponseForGetCall(productClient.getStore(), path);
+    string? link = check getLinkFromHeader(response);
+
+    json payload = check getJsonPayload(response);
+    json[] productsJson = <json[]>payload.products;
+    Product[] products = [];
+    int i = 0;
+    foreach var productJson in productsJson {
+        var product = getProductFromJson(productJson);
+        if (product is Error) {
+            return product;
+        } else {
+            products[i] = product;
+            i += 1;
+        }
+    }
+    return [products, link];
+}
+
+type ProductStream object {
+    string? link;
+    ProductClient productClient;
+
+    public function __init(string? link, ProductClient productClient) {
+        self.link = link;
+        self.productClient = productClient;
+    }
+
+    public function next() returns @tainted record {|Product[]|Error value;|}|Error? {
+        if (self.link is ()) {
+            return;
+        }
+        string linkString = <string>self.link;
+        var result = getProductsFromPath(self.productClient, linkString);
+        if (result is Error) {
+            return {value: result};
+        } else {
+            var [products, link] = result;
+            self.link = link;
+            return {value: products};
+        }
+    }
+};

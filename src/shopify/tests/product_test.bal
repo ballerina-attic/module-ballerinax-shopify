@@ -1,6 +1,8 @@
 import ballerina/test;
 import ballerina/time;
 
+int NUMBER_OF_PRODUCTS_LISTED = 12;
+
 int productId = 5390405173413;
 time:Time timeRecord = <time:Time>getTimeRecordFromTimeString("2020-07-07T17:01:47-04:00");
 Product expectedProduct = {
@@ -74,23 +76,24 @@ Product expectedProduct = {
                 requiresShipping: true,
                 adminGraphqlApiId: "gid://shopify/ProductVariant/35013166039205"
             }
-    ],
+        ],
     options: [
-        {
-            id: 6886905282725,
-            productId: 5390405173413,
-            name: "Colour",
-            values: ["Black", "Blue"],
-            position: 1
-        },
-        {
-            id: 6886905315493,
-            productId: 5390405173413,
-            name: "Size",
-            values: ["42", "43"],
-            position: 2
-         }
-    ],
+            {
+                id: 6886905282725,
+                productId: 5390405173413,
+                name: "Colour",
+                values: ["Black", "Blue"],
+                position: 1
+            },
+            {
+                id: 6886905315493,
+                productId: 5390405173413,
+                name: "Size",
+                values: ["42", "43"],
+                position: 2
+            }
+        ],
+    images: [],
     image: ()
 };
 
@@ -156,5 +159,49 @@ function getProductTest() {
         test:assertFail(product.toString());
     } else {
         test:assertEquals(product, expectedProduct);
+    }
+}
+
+@test:Config {}
+function getProductWithFieldsTest() {
+    string[] fields = ["id", "title", "vendor"];
+    Product productWithSelectedFields = {
+        id: 5390405173413,
+        title: "Sample Product 1",
+        vendor: "Ballerina"
+    };
+    Product|Error product = productClient->get(productId, fields);
+    if (product is Error) {
+        test:assertFail(product.toString());
+    } else {
+        test:assertEquals(product, productWithSelectedFields);
+    }
+}
+
+@test:Config {}
+function getAllProductsTest() {
+    var getAllResult = productClient->getAll();
+    if (getAllResult is Error) {
+        test:assertFail("Failed to retrieve Products. " + getAllResult.toString());
+    }
+    stream<Product[]|Error> productStream = <stream<Product[]|Error>>getAllResult;
+    var nextSet = productStream.next();
+
+    if (nextSet is ()) {
+        test:assertFail("No records received");
+    }
+    Product[]|Error value = <Product[]|Error>nextSet?.value;
+    if (value is Error) {
+        test:assertFail("Error occurred while retrieving Products from the stream. " + value.toString());
+    }
+}
+
+@test:Config {}
+function getProductCountTest() {
+    int|Error result = productClient->getCount();
+    if (result is Error) {
+        test:assertFail(result.toString());
+    } else {
+        test:assertEquals(result, NUMBER_OF_PRODUCTS_LISTED);
     }
 }

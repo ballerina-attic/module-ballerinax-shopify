@@ -34,6 +34,11 @@ const ADDRESS = "address";
 const MARKETING_UPDATED_AT = "acceptsMarketingUpdatedAt";
 const TOTAL_SPENT = "totalSpent";
 
+// Order
+const CLOSED_AT = "closedAt";
+const CANCELLED_AT = "cancelledAt";
+const PROCESSED_AT = "processedAt";
+
 // CustomerFilter
 const SINCE_ID = "sinceId";
 const IDS = "ids";
@@ -41,6 +46,13 @@ const CREATED_DATE_FILTER = "createdDateFilter";
 const UPDATED_DATE_FILTER = "updatedDateFilter";
 const LIMIT = "limit";
 const FIELDS = "fields";
+
+// Product Filter
+const TITLE = "title";
+const VENDOR = "vendor";
+const HANDLE = "handle";
+const PRODUCT_TYPE = "productType";
+const PUBLISHED_DATE_FILTER = "publishedDateFilter";
 
 // DateFilter
 const BEFORE = "before";

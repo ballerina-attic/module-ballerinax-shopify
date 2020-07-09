@@ -1,15 +1,10 @@
 import ballerina/http;
-import ballerina/lang.'string;
 import ballerina/time;
 
 function getAllCustomers(CustomerClient customerClient, CustomerFilter? filter) returns @tainted stream<Customer[]>|Error {
     string queryParams = "";
     if (filter is CustomerFilter) {
-        var result = trap buildQueryParamtersFromCustomerFilter(filter);
-        if (result is Error) {
-            return result;
-        }
-        queryParams = <string>result;
+        queryParams = check buildQueryParamtersFromFilter(filter);
     }
     string path = CUSTOMER_API_PATH + JSON + queryParams;
 
@@ -18,7 +13,11 @@ function getAllCustomers(CustomerClient customerClient, CustomerFilter? filter) 
 }
 
 function getCustomer(CustomerClient customerClient, int id, string[]? fields) returns @tainted Customer|Error {
-    string path = CUSTOMER_API_PATH + "/" + id.toString() + JSON;
+    string queryParams = "";
+    if (fields is string[]) {
+        queryParams = "?" + FIELDS + "=" + buildCommaSeparatedListFromArray(fields);
+    }
+    string path = CUSTOMER_API_PATH + "/" + id.toString() + JSON + queryParams;
     http:Response response = check getResponseForGetCall(customerClient.getStore(), path);
     json payload = check getJsonPayload(response);
     json customerJson = <json>payload.customer;
@@ -60,7 +59,7 @@ function updateCustomer(CustomerClient customerClient, Customer customer, int id
 
 function removeCustomer(CustomerClient customerClient, int id) returns Error? {
     string path = CUSTOMER_API_PATH + "/" + id.toString() + JSON;
-    http:Response response = check getResponseForDeleteCall(customerClient.getStore(), path);
+    _ = check getResponseForDeleteCall(customerClient.getStore(), path);
 }
 
 function getCustomerCount(CustomerClient customerClient) returns @tainted int|Error {
@@ -123,55 +122,6 @@ function getCustomerFromJson(json jsonValue) returns Customer|Error {
         customer.totalSpent = totalSpending;
     }
     return customer;
-}
-
-function buildQueryParamtersFromCustomerFilter(CustomerFilter filter) returns string {
-    string queryParams = "";
-        foreach var [key, value] in filter.entries() {
-        if (key == IDS && filter?.ids is int[]) {
-            int[] ids = <int[]>filter?.ids;
-            queryParams += "&" + IDS + "=" + buildCommaSeparatedListFromArray(ids);
-        } else if (key == SINCE_ID && filter?.sinceId is int) {
-            queryParams += "&" + convertToUnderscoreCase(key) + "=" + filter?.sinceId.toString();
-        } else if (key == CREATED_DATE_FILTER && filter?.createdDateFilter is DateFilter) {
-            DateFilter dateFilter = <DateFilter>filter?.createdDateFilter;
-            string? createdBefore = getTimeStringTimeFromFilter(dateFilter, BEFORE);
-            if (createdBefore is string) {
-                queryParams += "&" + UPDATED_BEFORE + "=" + createdBefore;
-                string s = queryParams.toString();
-            }
-            string? createdAfter = getTimeStringTimeFromFilter(dateFilter, AFTER);
-            if (createdAfter is string) {
-                queryParams += "&" + UPDATED_AFTER + "=" + createdAfter;
-            }
-        } else if (key == UPDATED_DATE_FILTER && filter?.updatedDateFilter is DateFilter) {
-            DateFilter dateFilter = <DateFilter>filter?.updatedDateFilter;
-            string? createdBefore = getTimeStringTimeFromFilter(dateFilter, BEFORE);
-            if (createdBefore is string) {
-                queryParams += "&" + UPDATED_BEFORE + "=" + createdBefore;
-            }
-            string? createdAfter = getTimeStringTimeFromFilter(dateFilter, AFTER);
-            if (createdAfter is string) {
-                queryParams += "&" + UPDATED_AFTER + "=" + createdAfter;
-            }
-        } else if (key == LIMIT && filter?.'limit is int) {
-            int 'limit = <int>filter?.'limit;
-            if ('limit <1 || 'limit > PAGE_MAX_LIMIT) {
-                panic createError("The max limit must be a positive integer less than " + PAGE_MAX_LIMIT.toString() +
-                    " (inclusive)");
-            }
-            string limitString = (filter?.'limit).toString();
-            queryParams += "&" + LIMIT + "=" + limitString;
-        } else if (key == FIELDS && filter?.fields is string[]) {
-            string[] fields = <string[]>filter?.fields;
-            queryParams += "&" + FIELDS + "=" + buildCommaSeparatedListFromArray(fields);
-        }
-    }
-    if (queryParams == "") {
-        return queryParams;
-    } else {
-        return "?" + 'string:substring(queryParams, 1, queryParams.length());
-    }
 }
 
 function getCustomersFromPath(CustomerClient customerClient, string path) returns @tainted [Customer[], string?]|Error {

@@ -4,7 +4,7 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/lang.'float;
 import ballerina/lang.'int;
-
+import ballerina/lang.'string;
 import ballerina/stringutils;
 import ballerina/time;
 
@@ -151,7 +151,7 @@ function convertToUnderscoreCase(string value) returns string {
 }
 
 function getTimeRecordFromTimeString(string? time) returns time:Time|Error? {
-    if (time is ()) {
+    if (time is () || time == "") {
         return;
     } else {
         var parsedTime = time:parse(time, DATE_FORMAT);
@@ -206,12 +206,22 @@ function getIntValueFromJson(string key, map<json> jsonMap) returns int|Error {
     return <int>result;
 }
 
-function getJsonArrayFromJson(map<json> jsonMap, string key) returns json[] {
-    var result = jsonMap.remove(key);
-    if (result is json[]) {
-        return result;
-    } else {
-        return [];
+function getJsonArrayFromJson(string key, map<json> jsonMap) returns json[]? {
+    if (jsonMap.hasKey(key)) {
+        var result = jsonMap.remove(key);
+        if (result is json[]) {
+            return result;
+        }
+    }
+    return;
+}
+
+function getJsonMapFromJson(string key, map<json> jsonMap) returns map<json>? {
+    if (jsonMap.hasKey(key)) {
+        var result = jsonMap.remove(key);
+        if (result is map<json>) {
+            return result;
+        }
     }
 }
 
@@ -293,7 +303,6 @@ function getResponseForGetCall(Store store, string path) returns http:Response|E
         return createError("Could not retrive data from the Shopify server.", result);
     }
     http:Response response = <http:Response>result;
-    // Check status code and return error if theres any
     return checkResponse(response);
 }
 
@@ -305,7 +314,6 @@ function getResponseForDeleteCall(Store store, string path) returns http:Respons
         return createError("Could not retrive data from the Shopify server.", result);
     }
     http:Response response = <http:Response>result;
-    // Check status code and return error if theres any
     return checkResponse(response);
 }
 
@@ -316,7 +324,6 @@ function getResponseForPostCall(Store store, string path, http:Request request) 
         return createError("Could not retrive data from the Shopify server.", result);
     }
     http:Response response = <http:Response>result;
-    // Check status code and return error if theres any
     return checkResponse(response);
 }
 
@@ -327,11 +334,44 @@ function getResponseForPutCall(Store store, string path, http:Request request) r
         return createError("Could not retrive data from the Shopify server.", result);
     }
     http:Response response = <http:Response>result;
-    // Check status code and return error if theres any
     return checkResponse(response);
 }
 
 function notImplemented() returns Error {
     io:println("Not implemented");
     return error(ERROR_REASON, message = message);
+}
+
+function buildQueryParamtersFromFilter(Filter filter) returns string|Error {
+    string queryParams = "";
+    foreach var [key, value] in filter.entries() {
+        if (key == LIMIT && filter?.'limit is int) {
+            int 'limit = <int>filter?.'limit;
+            if ('limit < 1 || 'limit > PAGE_MAX_LIMIT) {
+                return createError("The max limit must be a positive integer less than " + PAGE_MAX_LIMIT.toString() +
+                    " (inclusive)");
+            }
+            queryParams += "&" + LIMIT + "=" + 'limit.toString();
+        } else if (filter[key] is int || filter[key] is string) {
+            queryParams += "&" + convertToUnderscoreCase(key) + "=" + filter[key].toString();
+        } else if (filter[key] is int[] || filter[key] is string[]) {
+            queryParams += "&" + convertToUnderscoreCase(key) + "=" + buildCommaSeparatedListFromArray(<any[]>filter[key]);
+        } else if (filter[key] is DateFilter) {
+            DateFilter dateFilter = <DateFilter>filter[key];
+            string? before = getTimeStringTimeFromFilter(dateFilter, BEFORE);
+            if (before is string) {
+                queryParams += "&" + convertToUnderscoreCase(key) + SUFFIX_MAX + "=" + before;
+            }
+            string? after = getTimeStringTimeFromFilter(dateFilter, AFTER);
+            if (after is string) {
+                queryParams += "&" + convertToUnderscoreCase(key) + SUFFIX_MIN + "=" + after;
+            }
+        }
+    }
+    if (queryParams == "") {
+        return queryParams;
+    } else {
+        // Remove starting '&' character from the query parameters
+        return "?" + 'string:substring(queryParams, 1, queryParams.length());
+    }
 }

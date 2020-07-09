@@ -12,7 +12,7 @@ public type CustomerClient client object {
     # Retrieves the list of customers of the store. This API supports pagination.
     # 
     # + filter - Specify the filters when retrieving the customers
-    # + return - An array of `Customer` records if the request is successful, or else an `Error` 
+    # + return - A stream of `Customer[]` if the request is successful, or else an `Error` 
     public remote function getAll(CustomerFilter? filter = ()) returns @tainted stream<Customer[]|Error>|Error {
         return getAllCustomers(self, filter);
     }

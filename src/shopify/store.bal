@@ -51,10 +51,6 @@ public type Store client object {
         return self.productClient;
     }
 
-    public function getApiPath() returns string {
-        return self.apiPath;
-    }
-
     function getHttpClient() returns http:Client {
         return self.httpClient;
     }
