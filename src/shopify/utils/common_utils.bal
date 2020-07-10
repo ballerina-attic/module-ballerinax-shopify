@@ -340,8 +340,8 @@ function buildQueryParamtersFromFilter(Filter filter) returns string|Error {
         if (key == LIMIT && filter?.'limit is int) {
             int 'limit = <int>filter?.'limit;
             if ('limit < 1 || 'limit > PAGE_MAX_LIMIT) {
-                // TODO: Check whether a new line appears
-                return createError("The max limit must be a positive integer less than " + PAGE_MAX_LIMIT.toString() + " (inclusive)");
+                return createError("The max limit must be a positive integer less than " + PAGE_MAX_LIMIT.toString()
+                    + " (inclusive)");
             }
             queryParams += "&" + LIMIT + "=" + 'limit.toString();
         } else if (filter[key] is int || filter[key] is string) {

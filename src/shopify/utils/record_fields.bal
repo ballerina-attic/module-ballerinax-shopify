@@ -54,6 +54,10 @@ const HANDLE = "handle";
 const PRODUCT_TYPE = "productType";
 const PUBLISHED_DATE_FILTER = "publishedDateFilter";
 
+// Customer Search Filter 
+const ORDER_BY = "orderBy";
+const DECENDING = "decending";
+
 // DateFilter
 const BEFORE = "before";
 const AFTER = "after";

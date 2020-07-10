@@ -36,7 +36,7 @@ Customer customer = {
     lastName: "Doe",
     ordersCount: 0,
     state: "disabled",
-    totalSpent: 0.00,
+    totalSpent: "0.00",
     lastOrderId: (),
     note: "",
     verifiedEmail: true,
@@ -157,8 +157,26 @@ function deleteNonExistingCustomerTest() {
 }
 
 @test:Config {}
-function testGetAllCustomersWithPagination() {
+function searchCustomersTest() {
+    Customer expectedCustomer = {
+        firstName: "Thisaru",
+        lastName: "Guruge",
+        email: ()
+    };
+    CustomerSearchFilter filter = {
+        fields: ["firstName", "lastName", "email"]
+    };
+    Customer[] expectedCustomers = [expectedCustomer];
+    var result = customerClient->search("Thisaru", filter);
+    if (result is Error) {
+        test:assertFail(result.toString());
+    } else {
+        validateGetAllCustomersResult(result, expectedCustomers);
+    }
+}
 
+@test:Config {}
+function testGetAllCustomersWithPagination() {
     Customer expectedCustomer0 = {
         firstName: "Tom",
         lastName: "Riddle",

@@ -179,6 +179,34 @@ function getProductWithFieldsTest() {
 }
 
 @test:Config {}
+function getProductWithInvalidFieldsTest() {
+    string[] fields = ["id", "title", "nonexisting"];
+    Product productWithSelectedFields = {
+        id: 5390405173413,
+        title: "Sample Product 1"
+    };
+    Product|Error product = productClient->get(productId, fields);
+    if (product is Error) {
+        test:assertFail(product.toString());
+    } else {
+        test:assertEquals(product, productWithSelectedFields);
+    }
+}
+
+@test:Config {}
+function getProductWithAllInvalidFieldsTest() {
+    string[] fields = ["invalid", "anotherInvalidField", "nonexisting"];
+    // This should return an empty record since the provided fields does not exist
+    Product productWithSelectedFields = {};
+    Product|Error product = productClient->get(productId, fields);
+    if (product is Error) {
+        test:assertFail(product.toString());
+    } else {
+        test:assertEquals(product, productWithSelectedFields);
+    }
+}
+
+@test:Config {}
 function getAllProductsTest() {
     var getAllResult = productClient->getAll();
     if (getAllResult is Error) {
@@ -193,6 +221,21 @@ function getAllProductsTest() {
     Product[]|Error value = <Product[]|Error>nextSet?.value;
     if (value is Error) {
         test:assertFail("Error occurred while retrieving Products from the stream. " + value.toString());
+    }
+}
+
+@test:Config {}
+function getAllProductsWithInvalidLimitTest() {
+    string expectedMessage = "The max limit must be a positive integer less than 250 (inclusive)";
+    ProductFilter filter = {
+        limit: 500
+    };
+    var getAllResult = productClient->getAll(filter);
+    if (getAllResult is Error) {
+        string actualMessage = getAllResult.detail()?.message.toString();
+        test:assertEquals(actualMessage, expectedMessage);
+    } else {
+        test:assertFail("Invalid limit for a page did not return an error");
     }
 }
 

@@ -20,10 +20,21 @@ public type CustomerClient client object {
     # Retrieves a specific customer using the customer ID.
     # 
     # + id - The ID of the customer to be retrieved
-    # + fields - Specify the list of fields of the `Customer` record to retrieve
+    # + fields - Specify the list of fields of the `Customer` record to retrieve. If the provided fields are incorrect,
+    #            They will be ignored and the valid fields are returned
     # + return - The `Customer` record of the given ID if the operation succeeded, or else an `Error`
     public remote function get(int id, string[]? fields = ()) returns @tainted Customer|Error {
         return getCustomer(self, id, fields);
+    }
+
+    # Searches for customers matching the given query string.
+    # 
+    # + query - The query to search for Customers
+    # + filter - The `CustomerSearchFilter` record to filter and order the results. The default value is null
+    # + return - A stream of `Customer[]` if the request is successfull, or else an `Error`
+    public remote function search(string query, CustomerSearchFilter? filter = ()) returns @tainted
+        stream<Customer[]|Error>|Error {
+        return searchCustomers(self, query, filter);
     }
 
     # Creates a new customer in the store and returns the created `Customer` record. This returned record includes all the details of the customer including the values set by the Shopify admin API.

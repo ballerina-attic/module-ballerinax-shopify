@@ -4,3 +4,5 @@ const FULFILLMENTS = "fulfillments";
 const REFUNDS = "refunds";
 const SHIPPING_LINES = "shipping_lines";
 const CUSTOMER = "customer";
+const ORDER = "order";
+const QUERY = "query";

@@ -1,7 +1,6 @@
 import ballerina/http;
 import ballerina/time;
-
-// TODO: Implement search
+import ballerina/io;
 
 function getAllCustomers(CustomerClient customerClient, CustomerFilter? filter) returns @tainted stream<Customer[]>|Error {
     string queryParams = "";
@@ -17,7 +16,7 @@ function getAllCustomers(CustomerClient customerClient, CustomerFilter? filter) 
 function getCustomer(CustomerClient customerClient, int id, string[]? fields) returns @tainted Customer|Error {
     string queryParams = "";
     if (fields is string[]) {
-        // TODO: Validate fields?
+        // We don't need to validate these fields since the Shopify server will validate them
         queryParams = "?" + FIELDS + "=" + buildCommaSeparatedListFromArray(fields);
     }
     string path = CUSTOMER_API_PATH + "/" + id.toString() + JSON + queryParams;
@@ -25,6 +24,32 @@ function getCustomer(CustomerClient customerClient, int id, string[]? fields) re
     json payload = check getJsonPayload(response);
     json customerJson = <json>payload.customer;
     return getCustomerFromJson(customerJson);
+}
+
+function searchCustomers(CustomerClient customerClient, string query, CustomerSearchFilter? filter) returns
+    @tainted stream<Customer[]>|Error {
+    string queryParams = "?" + QUERY + "=" + query;
+    if (filter is CustomerSearchFilter) {
+        foreach string key in filter.keys() {
+            if (key == LIMIT && filter[key] is int) {
+                queryParams += "&" + convertToUnderscoreCase(key) + "=" + filter[key].toString();
+            } else if (key == FIELDS && filter[key] is string[]) {
+                queryParams += "&" + convertToUnderscoreCase(key) + "="
+                    + buildCommaSeparatedListFromArray(<string[]>filter[key]);
+            } else if (key == ORDER_BY && filter[key] is string) {
+                queryParams += "&" + ORDER + "=" + convertToUnderscoreCase(filter[key].toString());
+                if (filter.decending) {
+                    queryParams += " " + DESC;
+                } else {
+                    queryParams += " " + ASC;
+                }
+            }
+        }
+    }
+    string path = CUSTOMER_API_PATH + SEARCH_PATH + JSON + queryParams;
+    io:println(path);
+    CustomerStream customerStream = new (path, customerClient);
+    return new stream <Customer[]|Error, Error>(customerStream);
 }
 
 function createCustomer(CustomerClient customerClient, NewCustomer customer) returns @tainted Customer|Error {
@@ -105,8 +130,6 @@ function getCustomerFromJson(json jsonValue) returns Customer|Error {
     time:Time? createdAt = check getTimeRecordFromTimeString(createdAtString);
     time:Time? updatedAt = check getTimeRecordFromTimeString(updatedAtString);
     time:Time? marketingUpdatedAt = check getTimeRecordFromTimeString(marketingUpdatedAtString);
-    // TODO: Keep it as string
-    float? totalSpending = check getFloatValueFromJson(TOTAL_SPENT, customerJson);
 
     var customerFromJson = Customer.constructFrom(customerJson);
 
@@ -122,9 +145,6 @@ function getCustomerFromJson(json jsonValue) returns Customer|Error {
     }
     if (marketingUpdatedAt is time:Time) {
         customer.acceptsMarketingUpdatedAt = marketingUpdatedAt;
-    }
-    if (totalSpending is float) {
-        customer.totalSpent = totalSpending;
     }
     return customer;
 }

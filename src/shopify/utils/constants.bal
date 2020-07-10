@@ -6,6 +6,7 @@ const API_PATH = "/admin/api/2020-04";
 const CUSTOMER_API_PATH = "/customers";
 const ORDER_API_PATH = "/orders";
 const PRODUCT_API_PATH = "/products";
+const SEARCH_PATH = "/search";
 const COUNT_PATH = "/count";
 const CLOSE_PATH = "/close";
 const OPEN_PATH = "/open";
@@ -85,3 +86,6 @@ const JSON_STRING = "json_string";
 // Inventory Policy
 public const INVENTORY_DENY = "deny";
 public const INVENTORY_CONTINUE = "continue";
+
+const DESC = "DESC";
+const ASC = "ASC";

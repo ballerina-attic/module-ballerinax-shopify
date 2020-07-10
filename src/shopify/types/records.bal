@@ -73,6 +73,13 @@ public type CustomerFilter record {|
     string[] fields?;
 |};
 
+public type CustomerSearchFilter record {|
+    int limit?;
+    string[] fields?;
+    string orderBy?;
+    boolean decending = false;
+|};
+
 # Used to filter orders when retrieving orders.
 # 
 # + ids - Retrieve the orders by the provided set of ids
@@ -85,7 +92,8 @@ public type CustomerFilter record {|
 # + status - Filter orders by the order status
 # + financialStatus - Filter orders by the financial status
 # + fulfillmentStatus - Filter orders by the fulfillment status
-# + fields - Retrieve only a specific set fields of a Order record
+# + fields - Retrieve only a specific set fields of a Order record. If the provided fields are incorrect, They will be
+#            ignored and the valid fields are returned
 public type OrderFilter record {|
     string[] ids?;
     int limit?;
@@ -185,7 +193,7 @@ public type Customer record {
     string? lastName?;
     int ordersCount?;
     CustomerState state?;
-    float totalSpent?;
+    string totalSpent?;
     string? lastOrderId?;
     string? note?;
     boolean verifiedEmail?;
