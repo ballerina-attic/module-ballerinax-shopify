@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="0.1.0">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/target/caches/jar_cache/ballerinax/shopify/0.1.0/ballerinax-shopify-0.1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/target/caches/jar_cache/ballerinax/shopify/0.1.0/ballerinax-shopify-0.1.0-testable.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

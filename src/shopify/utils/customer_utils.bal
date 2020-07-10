@@ -1,6 +1,8 @@
 import ballerina/http;
 import ballerina/time;
 
+// TODO: Implement search
+
 function getAllCustomers(CustomerClient customerClient, CustomerFilter? filter) returns @tainted stream<Customer[]>|Error {
     string queryParams = "";
     if (filter is CustomerFilter) {
@@ -15,6 +17,7 @@ function getAllCustomers(CustomerClient customerClient, CustomerFilter? filter) 
 function getCustomer(CustomerClient customerClient, int id, string[]? fields) returns @tainted Customer|Error {
     string queryParams = "";
     if (fields is string[]) {
+        // TODO: Validate fields?
         queryParams = "?" + FIELDS + "=" + buildCommaSeparatedListFromArray(fields);
     }
     string path = CUSTOMER_API_PATH + "/" + id.toString() + JSON + queryParams;
@@ -26,8 +29,8 @@ function getCustomer(CustomerClient customerClient, int id, string[]? fields) re
 
 function createCustomer(CustomerClient customerClient, NewCustomer customer) returns @tainted Customer|Error {
     string path = CUSTOMER_API_PATH + JSON;
-    http:Request request = customerClient.getStore().getRequest();
 
+    http:Request request = new;
     json newCustomerJson = <json>json.constructFrom(customer);
     newCustomerJson = convertRecordKeysToJsonKeys(newCustomerJson);
     json payload = {
@@ -43,12 +46,13 @@ function createCustomer(CustomerClient customerClient, NewCustomer customer) ret
 
 function updateCustomer(CustomerClient customerClient, Customer customer, int id) returns @tainted Customer|Error {
     string path = CUSTOMER_API_PATH + "/" + id.toString() + JSON;
+
     json customerJson = <json>json.constructFrom(customer);
     customerJson = convertRecordKeysToJsonKeys(customerJson);
     json payload = {
         customer: customerJson
     };
-    http:Request request = customerClient.getStore().getRequest();
+    http:Request request = new;
     request.setJsonPayload(<@untainted>payload);
     http:Response response = check getResponseForPutCall(customerClient.getStore(), path, request);
 
@@ -101,6 +105,7 @@ function getCustomerFromJson(json jsonValue) returns Customer|Error {
     time:Time? createdAt = check getTimeRecordFromTimeString(createdAtString);
     time:Time? updatedAt = check getTimeRecordFromTimeString(updatedAtString);
     time:Time? marketingUpdatedAt = check getTimeRecordFromTimeString(marketingUpdatedAtString);
+    // TODO: Keep it as string
     float? totalSpending = check getFloatValueFromJson(TOTAL_SPENT, customerJson);
 
     var customerFromJson = Customer.constructFrom(customerJson);

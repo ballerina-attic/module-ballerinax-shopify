@@ -39,7 +39,7 @@ function getProduct(ProductClient productClient, int id, string[]? fields) retur
 
 function createProduct(ProductClient productClient, NewProduct product) returns @tainted Product|Error {
     string path = PRODUCT_API_PATH + JSON;
-    http:Request request = productClient.getStore().getRequest();
+    http:Request request = new;
 
     json newProductJson = <json>json.constructFrom(product);
     newProductJson = convertRecordKeysToJsonKeys(newProductJson);
@@ -61,7 +61,7 @@ function updateProduct(ProductClient productClient, Product product, int id) ret
     json payload = {
         product: productJson
     };
-    http:Request request = productClient.getStore().getRequest();
+    http:Request request = new;
     request.setJsonPayload(<@untainted>payload);
     http:Response response = check getResponseForPutCall(productClient.getStore(), path, request);
 

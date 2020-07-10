@@ -8,12 +8,14 @@ import ballerina/time;
 # + timeoutInMillis - The connection timeout for a Shopify request
 # + retryConfig - The `http:RetryConfig` value for retry the Shopify requests, when failed
 # + secureSocket - The `http:ClientSecureSocket` configurations for secure communications
+# + followRedirects - The `http:FollowRedirects` configuration to enable/configure redirects
 public type StoreConfiguration record {|
     string storeName;
     AuthenticationConfiguration authConfiguration;
     int timeoutInMillis = 60000;
     http:RetryConfig retryConfig?;
     http:ClientSecureSocket secureSocket?;
+    http:FollowRedirects followRedirects?;
 |};
 
 public type DateFilter record {|
@@ -51,7 +53,8 @@ public type Detail record {
     string message;
     error cause?;
     int statusCode?;
-};
+    //TODO: Add error response fields here
+};  
 
 # Used to filter customers when retrieving customers.
 # 

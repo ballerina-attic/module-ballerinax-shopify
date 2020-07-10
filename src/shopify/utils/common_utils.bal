@@ -23,16 +23,6 @@ function getAuthHandler(BasicAuthConfiguration config) returns http:BasicAuthHan
     return new (outboundBasicAuthProvider);
 }
 
-function getRequestWithBasicAuth(Store store) returns http:Request {
-    return new http:Request();
-}
-
-function getRequestWithOAuth(Store store) returns http:Request {
-    http:Request request = new;
-    request.addHeader(OAUTH_HEADER_KEY, store.accessToken);
-    return request;
-}
-
 function createError(string message, error? e = ()) returns Error {
     Error shopifyError;
     if (e is error) {
@@ -66,7 +56,7 @@ function checkResponse(http:Response response) returns http:Response|Error {
             } else {
                 errorMessage = errorRecord.toString();
             }
-
+            // TODO: Add common errors and codes if there's any. Create an open error record
             return createError(errorMessage);
         }
         return createError("Invalid response received.");
@@ -88,6 +78,7 @@ function convertJsonKeysToRecordKeys(json jsonValue) returns json {
             resultJsonArray.push(convertJsonKeysToRecordKeys(value));
         }
         return resultJsonArray;
+        // TODO: Remove ifs
     } else if (jsonValue is map<json>) {
         map<json> resultJson = {};
         foreach string key in jsonValue.keys() {
@@ -128,6 +119,7 @@ function convertRecordKeysToJsonKeys(json jsonValue) returns json {
             resultJsonArray.push(convertRecordKeysToJsonKeys(value));
         }
         return resultJsonArray;
+        // TODO: Remove else 
     } else if (jsonValue is map<json>) {
         map<json> resultJson = {};
         foreach string key in jsonValue.keys() {
@@ -297,7 +289,7 @@ function retrieveLinkHeaderValues(string linkHeaderValue) returns string|Error? 
 
 function getResponseForGetCall(Store store, string path) returns http:Response|Error {
     http:Client httpClient = store.getHttpClient();
-    http:Request request = store.getRequest();
+    http:Request request = new;
     var result = httpClient->get(path, request);
     if (result is error) {
         return createError("Could not retrive data from the Shopify server.", result);
@@ -308,7 +300,7 @@ function getResponseForGetCall(Store store, string path) returns http:Response|E
 
 function getResponseForDeleteCall(Store store, string path) returns http:Response|Error {
     http:Client httpClient = store.getHttpClient();
-    http:Request request = store.getRequest();
+    http:Request request = new;
     var result = httpClient->delete(path, request);
     if (result is error) {
         return createError("Could not retrive data from the Shopify server.", result);
@@ -348,8 +340,8 @@ function buildQueryParamtersFromFilter(Filter filter) returns string|Error {
         if (key == LIMIT && filter?.'limit is int) {
             int 'limit = <int>filter?.'limit;
             if ('limit < 1 || 'limit > PAGE_MAX_LIMIT) {
-                return createError("The max limit must be a positive integer less than " + PAGE_MAX_LIMIT.toString() +
-                    " (inclusive)");
+                // TODO: Check whether a new line appears
+                return createError("The max limit must be a positive integer less than " + PAGE_MAX_LIMIT.toString() + " (inclusive)");
             }
             queryParams += "&" + LIMIT + "=" + 'limit.toString();
         } else if (filter[key] is int || filter[key] is string) {

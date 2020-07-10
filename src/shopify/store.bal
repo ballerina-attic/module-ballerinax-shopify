@@ -1,39 +1,35 @@
 import ballerina/http;
 
-public type Store client object {
+public type Store object {
 
-    private string apiPath;
-    string accessToken = "";
     private http:Client httpClient;
     private CustomerClient customerClient;
     private OrderClient orderClient;
     private ProductClient productClient;
-    private AuthenticationConfiguration authConfig;
-    function (Store) returns http:Request getRequest = function (Store store) returns http:Request { return new;};
 
     public function __init(StoreConfiguration storeConfiguration) {
-        self.apiPath = HTTPS + storeConfiguration.storeName + SHOPIFY_URL + API_PATH;
+        string apiPath = HTTPS + storeConfiguration.storeName + SHOPIFY_URL + API_PATH;
 
         http:ClientConfiguration httpClientConfig = {
             secureSocket: storeConfiguration?.secureSocket,
             retryConfig: storeConfiguration?.retryConfig,
-            timeoutInMillis: storeConfiguration.timeoutInMillis
+            timeoutInMillis: storeConfiguration.timeoutInMillis,
+            followRedirects: storeConfiguration?.followRedirects
         };
 
-        // Assigning to a variable to use inside the type guard
         AuthenticationConfiguration authConfig = storeConfiguration.authConfiguration;
-        self.authConfig = authConfig;
-        
         if (authConfig is BasicAuthConfiguration) {
             httpClientConfig.auth = {
                 authHandler: getAuthHandler(authConfig)
             };
-            self.getRequest = getRequestWithBasicAuth;
         } else {
-            self.accessToken = authConfig.accessToken;
-            self.getRequest = getRequestWithOAuth;
+            ShopifyAuthHandler authHandler = new(authConfig.accessToken);
+            httpClientConfig.auth = {
+                authHandler: authHandler
+            };
         }
-        self.httpClient = new (self.apiPath, httpClientConfig);
+        // TODO: Init the clients on demand
+        self.httpClient = new (apiPath, httpClientConfig);
         self.customerClient = new(self);
         self.orderClient = new(self);
         self.productClient = new(self);
@@ -53,13 +49,5 @@ public type Store client object {
 
     function getHttpClient() returns http:Client {
         return self.httpClient;
-    }
-
-    function getRequest() returns http:Request {
-        if (self.authConfig is BasicAuthConfiguration) {
-            return getRequestWithBasicAuth(self);
-        } else {
-            return getRequestWithOAuth(self);
-        }
     }
 };

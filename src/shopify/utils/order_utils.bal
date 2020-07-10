@@ -39,7 +39,7 @@ function getOrderCount(OrderClient orderClient, OrderCountFilter? filter) return
 
 function closeOrder(OrderClient orderClient, int id) returns @tainted Order|Error {
     string path = ORDER_API_PATH + "/" + id.toString() + CLOSE_PATH + JSON;
-    http:Request request = orderClient.getStore().getRequest();
+    http:Request request = new;
     http:Response response = check getResponseForPostCall(orderClient.getStore(), path, request);
     json payload = check getJsonPayload(response);
     json orderJson = <json>payload.order;
@@ -48,7 +48,7 @@ function closeOrder(OrderClient orderClient, int id) returns @tainted Order|Erro
 
 function openOrder(OrderClient orderClient, int id) returns @tainted Order|Error {
     string path = ORDER_API_PATH + "/" + id.toString() + OPEN_PATH + JSON;
-    http:Request request = orderClient.getStore().getRequest();
+    http:Request request = new;
     http:Response response = check getResponseForPostCall(orderClient.getStore(), path, request);
     json payload = check getJsonPayload(response);
     json orderJson = <json>payload.order;
@@ -61,7 +61,7 @@ function cancelOrder() returns Order|Error {
 
 function createOrder(OrderClient orderClient, NewOrder order) returns @tainted Order|Error {
     string path = ORDER_API_PATH + JSON;
-    http:Request request = orderClient.getStore().getRequest();
+    http:Request request = new;
 
     json newOrderJson = <json>json.constructFrom(order);
     newOrderJson = convertRecordKeysToJsonKeys(newOrderJson);
@@ -83,7 +83,7 @@ function updateOrder(OrderClient orderClient, Order order, int id) returns @tain
     json payload = {
         order: orderJson
     };
-    http:Request request = orderClient.getStore().getRequest();
+    http:Request request = new;
     request.setJsonPayload(<@untainted>payload);
     http:Response response = check getResponseForPutCall(orderClient.getStore(), path, request);
 
