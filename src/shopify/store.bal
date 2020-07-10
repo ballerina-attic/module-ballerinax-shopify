@@ -3,9 +3,6 @@ import ballerina/http;
 public type Store object {
 
     private http:Client httpClient;
-    private CustomerClient customerClient;
-    private OrderClient orderClient;
-    private ProductClient productClient;
 
     public function __init(StoreConfiguration storeConfiguration) {
         string apiPath = HTTPS + storeConfiguration.storeName + SHOPIFY_URL + API_PATH;
@@ -28,23 +25,19 @@ public type Store object {
                 authHandler: authHandler
             };
         }
-        // TODO: Init the clients on demand
         self.httpClient = new (apiPath, httpClientConfig);
-        self.customerClient = new(self);
-        self.orderClient = new(self);
-        self.productClient = new(self);
     }
 
     public function getCustomerClient() returns CustomerClient {
-        return self.customerClient;
+        return new CustomerClient(self);
     }
 
     public function getOrderClient() returns OrderClient {
-        return self.orderClient;
+        return new OrderClient(self);
     }
 
     public function getProductClient() returns ProductClient {
-        return self.productClient;
+        return new ProductClient(self);
     }
 
     function getHttpClient() returns http:Client {
