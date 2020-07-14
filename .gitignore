@@ -2,3 +2,4 @@ target
 *.log
 .history
 ballerina.conf
+.DS_Store

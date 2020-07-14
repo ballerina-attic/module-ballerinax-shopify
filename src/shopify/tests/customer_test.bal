@@ -1,15 +1,15 @@
 import ballerina/test;
 import ballerina/time;
-import ballerina/config;
+import ballerina/io;
 
-const JOHN_DOE_ID = 3663856566437;
+const JOHN_DOE_ID = 3776780173473;
 
-time:Time createdTime = <time:Time>getTimeRecordFromTimeString("2020-06-10T04:27:07-04:00");
-time:Time updatedTime = <time:Time>getTimeRecordFromTimeString("2020-06-10T04:27:07-04:00");
-time:Time marketingUpdatedTime = <time:Time>getTimeRecordFromTimeString("2020-06-10T04:27:07-04:00");
+time:Time createdTime = <time:Time>getTimeRecordFromTimeString("2020-07-14T05:09:09-04:00");
+time:Time updatedTime = <time:Time>getTimeRecordFromTimeString("2020-07-14T05:09:09-04:00");
+time:Time marketingUpdatedTime = <time:Time>getTimeRecordFromTimeString("2020-07-14T05:09:09-04:00");
 
 Address address = {
-    id: 4467764691109,
+    id: 4494995980449,
     customerId: JOHN_DOE_ID,
     firstName: "John",
     lastName: "Doe",
@@ -39,30 +39,24 @@ Customer customer = {
     state: "disabled",
     totalSpent: "0.00",
     lastOrderId: (),
-    note: "",
+    note: (),
     verifiedEmail: true,
     multipassIdentifier: (),
-    taxExempt: true,
+    taxExempt: false,
     phone: "+94714567890",
     tags: "",
     lastOrderName: (),
-    currency: "LKR",
+    currency: "USD",
     addresses: [address],
     acceptsMarketingUpdatedAt: marketingUpdatedTime,
     marketingOptInLevel: MARKETING_SINGLE,
     taxExemptions: [],
-    adminGraphqlApiId: "gid://shopify/Customer/3663856566437",
+    adminGraphqlApiId: "gid://shopify/Customer/3776780173473",
     defaultAddress: address
 };
-OAuthConfiguration oAuthConfiguration = {
-    accessToken: config:getAsString("token")
-};
-StoreConfiguration storeConfiguration = {
-    storeName: STORE_NAME,
-    authConfiguration: oAuthConfiguration
-};
-Store store = new (storeConfiguration);
-CustomerClient customerClient = store.getCustomerClient();
+
+TestUtil customerTestUtil = new;
+CustomerClient customerClient = customerTestUtil.getStore().getCustomerClient();
 
 @test:Config {}
 function getAllCustomersTest() {
@@ -110,6 +104,11 @@ function getCustomerTest() {
     if (result is Error) {
         test:assertFail(result.toString());
     } else {
+        foreach string key in result.keys() {
+            if (result[key] != customer[key]) {
+                io:println("Key " + key + " not equal");
+            }
+        }
         test:assertEquals(result, customer);
     }
 }
@@ -186,14 +185,14 @@ function searchCustomersTest() {
 @test:Config {}
 function testGetAllCustomersWithPagination() {
     Customer expectedCustomer0 = {
-        firstName: "Tom",
-        lastName: "Riddle",
-        email: "tom@example.com"
+        firstName: "Thisaru",
+        lastName: "Guruge",
+        email: ()
     };
 
     Customer expectedCustomer1 = {
-        firstName: "Lahiru",
-        lastName: "Perera",
+        firstName: "Ruwangika",
+        lastName: "Gunawardana",
         email: ()
     };
 
@@ -204,15 +203,15 @@ function testGetAllCustomersWithPagination() {
     };
 
     Customer expectedCustomer3 = {
-        firstName: "Ruwangika",
-        lastName: "Gunawardana",
+        firstName: "Lahiru",
+        lastName: "Perera",
         email: ()
     };
 
     Customer expectedCustomer4 = {
-        firstName: "Thisaru",
-        lastName: "Guruge",
-        email: ()
+        firstName: "Tom",
+        lastName: "Riddle",
+        email: "tom@example.com"
     };
 
     Customer expectedCustomer5 = {
@@ -255,7 +254,6 @@ function validateGetAllCustomersResult(stream<Customer[]|Error> result, Customer
 }
 
 function removeCustomerFromStore(int id) {
-    CustomerClient customerClient = store.getCustomerClient();
     Error? result = customerClient->remove(id);
     if (result is Error) {
         test:assertFail("Failed to remove the Customer. " + result.toString());
