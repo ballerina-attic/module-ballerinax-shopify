@@ -1,29 +1,29 @@
-import ballerina/config;
 import ballerina/test;
 import ballerina/time;
+import ballerina/io;
 
-int NUMBER_OF_PRODUCTS_LISTED = 12;
+int NUMBER_OF_PRODUCTS_LISTED = 2;
 
-int productId = 5390405173413;
-time:Time timeRecord = <time:Time>getTimeRecordFromTimeString("2020-07-07T17:01:47-04:00");
+int productId = 5383565017249;
+time:Time timeRecord = <time:Time>getTimeRecordFromTimeString("2020-07-14T07:55:48-04:00");
 Product expectedProduct = {
-    id: 5390405173413,
+    id: productId,
     title: "Sample Product 1",
     bodyHtml: "<p>Sample product body</p>",
     vendor: "Ballerina",
     productType: "Shoes",
-    'handle: "sample-product-7",
+    'handle: "sample-product-1",
     createdAt: timeRecord,
     updatedAt: timeRecord,
     publishedAt: timeRecord,
     templateSuffix: (),
     publishedScope: "web",
     tags: "",
-    adminGraphqlApiId: "gid://shopify/Product/5390405173413",
+    adminGraphqlApiId: "gid://shopify/Product/5383565017249",
     variants: [
             {
-                id: 35013166006437,
-                productId: 5390405173413,
+                id: 35060410876065,
+                productId: productId,
                 title: "Black / 42",
                 price: "100.00",
                 sku: "123",
@@ -42,16 +42,16 @@ Product expectedProduct = {
                 grams: 0,
                 imageId: (),
                 weight: 0.0,
-                weightUnit: "kg",
-                inventoryItemId: 37153283178661,
+                weightUnit: "lb",
+                inventoryItemId: 37060044423329,
                 inventoryQuantity: 0,
                 oldInventoryQuantity: 0,
                 requiresShipping: true,
-                adminGraphqlApiId: "gid://shopify/ProductVariant/35013166006437"
+                adminGraphqlApiId: "gid://shopify/ProductVariant/35060410876065"
             },
             {
-                id: 35013166039205,
-                productId: 5390405173413,
+                id: 35060410908833,
+                productId: productId,
                 title: "Blue / 43",
                 price: "150.00",
                 sku: "123",
@@ -70,25 +70,25 @@ Product expectedProduct = {
                 grams: 0,
                 imageId: (),
                 weight: 0.0,
-                weightUnit: "kg",
-                inventoryItemId: 37153283211429,
+                weightUnit: "lb",
+                inventoryItemId: 37060044456097,
                 inventoryQuantity: 0,
                 oldInventoryQuantity: 0,
                 requiresShipping: true,
-                adminGraphqlApiId: "gid://shopify/ProductVariant/35013166039205"
+                adminGraphqlApiId: "gid://shopify/ProductVariant/35060410908833"
             }
         ],
     options: [
             {
-                id: 6886905282725,
-                productId: 5390405173413,
+                id: 6874400915617,
+                productId: productId,
                 name: "Colour",
                 values: ["Black", "Blue"],
                 position: 1
             },
             {
-                id: 6886905315493,
-                productId: 5390405173413,
+                id: 6874400948385,
+                productId: productId,
                 name: "Size",
                 values: ["42", "43"],
                 position: 2
@@ -98,15 +98,8 @@ Product expectedProduct = {
     image: ()
 };
 
-OAuthConfiguration oAuthConfiguration = {
-    accessToken: config:getAsString("token")
-};
-StoreConfiguration storeConfiguration = {
-    storeName: STORE_NAME,
-    authConfiguration: oAuthConfiguration
-};
-Store store = new (storeConfiguration);
-ProductClient productClient = store.getProductClient();
+TestUtil productTestUtil = new;
+ProductClient productClient = productTestUtil.getStore().getProductClient();
 
 @test:Config {}
 function createProductTest() {
@@ -175,7 +168,7 @@ function getProductTest() {
 function getProductWithFieldsTest() {
     string[] fields = ["id", "title", "vendor"];
     Product productWithSelectedFields = {
-        id: 5390405173413,
+        id: productId,
         title: "Sample Product 1",
         vendor: "Ballerina"
     };
@@ -191,7 +184,7 @@ function getProductWithFieldsTest() {
 function getProductWithInvalidFieldsTest() {
     string[] fields = ["id", "title", "nonexisting"];
     Product productWithSelectedFields = {
-        id: 5390405173413,
+        id: productId,
         title: "Sample Product 1"
     };
     Product|Error product = productClient->get(productId, fields);
@@ -227,9 +220,14 @@ function getAllProductsTest() {
     if (nextSet is ()) {
         test:assertFail("No records received");
     }
-    Product[]|Error value = <Product[]|Error>nextSet?.value;
+    var value = <Product[]|Error>nextSet?.value;
     if (value is Error) {
         test:assertFail("Error occurred while retrieving Products from the stream. " + value.toString());
+    } else {
+        Product[] products = <Product[]>value;
+        foreach Product product in products {
+            io:println(product);
+        }
     }
 }
 
