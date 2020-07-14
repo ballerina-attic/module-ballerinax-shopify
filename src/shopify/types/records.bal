@@ -120,6 +120,13 @@ public type OrderFilter record {|
     string[] fields?;
 |};
 
+# Used to filter the orders when retrieving the order count of a store.
+# 
+# + createdAt - Filter the orders by the time when the order created
+# + updatedAt - Filter the orders by the time when the order updated
+# + status - Filter the orders by the order status
+# + financialStatus - Filter the orders by the financial status of the order
+# + fulfillmentStatus - Filter the orders by the fulfillment status of the order
 public type OrderCountFilter record {
     DateFilter createdAt?;
     DateFilter updatedAt?;
@@ -161,6 +168,15 @@ public type ProductFilter record {
     string presentmentCurrencies?;
 };
 
+# Used to filter the products when retrieving the product count of a store.
+# 
+# + vendor - Filter the products by its vendor
+# + productType - Filter the products by it type
+# + collectionId - Filter products by the product collection
+# + createdAt - Filter the products by the time when the product created
+# + updatedAt - Filter the products by the time when the product updated
+# + publishedAt - Filter the products by the time when the product published
+# + publishedStatus - Filter the products by the published status
 public type ProductCountFilter record {
     string vendor?;
     string productType?;
