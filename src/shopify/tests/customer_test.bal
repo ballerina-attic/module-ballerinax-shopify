@@ -1,5 +1,6 @@
 import ballerina/test;
 import ballerina/time;
+import ballerina/config;
 
 const JOHN_DOE_ID = 3663856566437;
 
@@ -53,7 +54,14 @@ Customer customer = {
     adminGraphqlApiId: "gid://shopify/Customer/3663856566437",
     defaultAddress: address
 };
-
+OAuthConfiguration oAuthConfiguration = {
+    accessToken: config:getAsString("token")
+};
+StoreConfiguration storeConfiguration = {
+    storeName: STORE_NAME,
+    authConfiguration: oAuthConfiguration
+};
+Store store = new (storeConfiguration);
 CustomerClient customerClient = store.getCustomerClient();
 
 @test:Config {}

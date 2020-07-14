@@ -1,3 +1,4 @@
+import ballerina/config;
 import ballerina/test;
 import ballerina/time;
 
@@ -97,6 +98,14 @@ Product expectedProduct = {
     image: ()
 };
 
+OAuthConfiguration oAuthConfiguration = {
+    accessToken: config:getAsString("token")
+};
+StoreConfiguration storeConfiguration = {
+    storeName: STORE_NAME,
+    authConfiguration: oAuthConfiguration
+};
+Store store = new (storeConfiguration);
 ProductClient productClient = store.getProductClient();
 
 @test:Config {}

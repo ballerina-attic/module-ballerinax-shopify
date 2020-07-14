@@ -1,5 +1,14 @@
+import ballerina/config;
 import ballerina/test;
 
+OAuthConfiguration oAuthConfiguration = {
+    accessToken: config:getAsString("token")
+};
+StoreConfiguration storeConfiguration = {
+    storeName: STORE_NAME,
+    authConfiguration: oAuthConfiguration
+};
+Store store = new (storeConfiguration);
 OrderClient orderClient = store.getOrderClient();
 
 int ORDER_ID = 2559406571685;
