@@ -48,15 +48,23 @@ function checkResponse(http:Response response) returns http:Response|Error {
     } else {
         var payload = response.getJsonPayload();
         if (payload is json) {
+            Detail detail = {
+                message: "Error response received from Shopify server."
+            };
+            detail.statusCode = statusCode;
             map<json> payloadMap = <@untainted map<json>>payload;
             string errorMessage = "";
             var errorRecord = payloadMap[ERRORS_FIELD];
             if (errorRecord is map<json>) {
-                errorMessage = createErrorMessageFromJson(<map<json>>errorRecord);
+                var additionalErrorInfo = AdditionalErrorInfo.constructFrom(errorRecord);
+                if (additionalErrorInfo is AdditionalErrorInfo) {
+                    detail.additionalErrorInfo = additionalErrorInfo;
+                } else {
+                    errorMessage = createErrorMessageFromJson(<map<json>>errorRecord);
+                }
             } else {
                 errorMessage = errorRecord.toString();
             }
-            // TODO: Add common errors and codes if there's any. Create an open error record
             return createError(errorMessage);
         }
         return createError("Invalid response received.");
@@ -78,8 +86,8 @@ function convertJsonKeysToRecordKeys(json jsonValue) returns json {
             resultJsonArray.push(convertJsonKeysToRecordKeys(value));
         }
         return resultJsonArray;
-        // TODO: Remove ifs
-    } else if (jsonValue is map<json>) {
+    }
+    if (jsonValue is map<json>) {
         map<json> resultJson = {};
         foreach string key in jsonValue.keys() {
             string newKey = convertToCamelCase(key);
@@ -91,9 +99,8 @@ function convertJsonKeysToRecordKeys(json jsonValue) returns json {
             }
         }
         return resultJson;
-    } else {
-        return jsonValue;
     }
+    return jsonValue;
 }
 
 function convertToCamelCase(string key) returns string {
@@ -119,8 +126,8 @@ function convertRecordKeysToJsonKeys(json jsonValue) returns json {
             resultJsonArray.push(convertRecordKeysToJsonKeys(value));
         }
         return resultJsonArray;
-        // TODO: Remove else 
-    } else if (jsonValue is map<json>) {
+    }
+    if (jsonValue is map<json>) {
         map<json> resultJson = {};
         foreach string key in jsonValue.keys() {
             string newKey = convertToUnderscoreCase(key);
@@ -132,9 +139,8 @@ function convertRecordKeysToJsonKeys(json jsonValue) returns json {
             }
         }
         return resultJson;
-    } else {
-        return jsonValue;
     }
+    return jsonValue;
 }
 
 function convertToUnderscoreCase(string value) returns string {
@@ -231,9 +237,9 @@ function buildCommaSeparatedListFromArray(any[] array) returns string {
     int i = 0;
     foreach var item in array {
         if (i == 0) {
-            result += item.toString();
+            result += convertToUnderscoreCase(item.toString());
         } else {
-            result += "," + item.toString();
+            result += "," + convertToUnderscoreCase(item.toString());
         }
         i += 1;
     }

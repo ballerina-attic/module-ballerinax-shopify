@@ -16,3 +16,6 @@ public type MetaFieldValueType INTEGER|STRING|JSON_STRING;
 public type InventoryPolicy INVENTORY_DENY|INVENTORY_CONTINUE;
 
 type Filter CustomerFilter|OrderFilter|OrderCountFilter|ProductFilter|ProductCountFilter;
+
+# Represents different types of AuthenticationConfigurations for the Shopify store app.
+public type AuthenticationConfiguration BasicAuthConfiguration|OAuthConfiguration;

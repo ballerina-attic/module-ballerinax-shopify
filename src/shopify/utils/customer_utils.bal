@@ -1,6 +1,5 @@
 import ballerina/http;
 import ballerina/time;
-import ballerina/io;
 
 function getAllCustomers(CustomerClient customerClient, CustomerFilter? filter) returns @tainted stream<Customer[]>|Error {
     string queryParams = "";
@@ -47,7 +46,6 @@ function searchCustomers(CustomerClient customerClient, string query, CustomerSe
         }
     }
     string path = CUSTOMER_API_PATH + SEARCH_PATH + JSON + queryParams;
-    io:println(path);
     CustomerStream customerStream = new (path, customerClient);
     return new stream <Customer[]|Error, Error>(customerStream);
 }
