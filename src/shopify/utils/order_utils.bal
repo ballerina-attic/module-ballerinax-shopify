@@ -1,5 +1,6 @@
 import ballerina/http;
 import ballerina/time;
+import ballerina/io;
 
 function getAllOrders(OrderClient orderClient, OrderFilter? filter) returns @tainted stream<Order[]>|Error {
     string queryParams = "";
@@ -100,6 +101,7 @@ function deleteOrder(OrderClient orderClient, int id) returns Error? {
 
 function getOrderFromJson(json jsonValue) returns Order|Error {
     map<json> orderJson = <map<json>>convertJsonKeysToRecordKeys(jsonValue);
+    io:println(orderJson.toJsonString());
     string? createdAtString = getValueFromJson(CREATED_AT, orderJson);
     string? updatedAtString = getValueFromJson(UPDATED_AT, orderJson);
     string? closedAtString = getValueFromJson(CLOSED_AT, orderJson);

@@ -1,358 +1,222 @@
-import ballerina/config;
 import ballerina/test;
 
-OAuthConfiguration oAuthConfiguration = {
-    accessToken: config:getAsString("token")
-};
-StoreConfiguration storeConfiguration = {
-    storeName: STORE_NAME,
-    authConfiguration: oAuthConfiguration
-};
-Store store = new (storeConfiguration);
-OrderClient orderClient = store.getOrderClient();
+TestUtil orderTestUtil = new;
+OrderClient orderClient = orderTestUtil.getStore().getOrderClient();
 
-int ORDER_ID = 2559406571685;
+int orderId = 2569318891681;
 json expectedOrderJson = {
-    "id": 2559406571685,
-    "email": "tom@example.com",
-    "closed_at": null,
-    "created_at": "2020-07-09T05:36:24-04:00",
-    "updated_at": "2020-07-09T05:36:25-04:00",
+    "id": 2569318891681,
+    "email": "john.doe@example.com",
+    "closedAt": null,
+    "createdAt": "2020-07-14T08:45:59-04:00",
+    "updatedAt": "2020-07-14T08:46:00-04:00",
     "number": 1,
     "note": null,
-    "token": "d50daacb9633d6f71ce69a0bc7fec0e9",
-    "gateway": "bogus",
-    "test": true,
-    "total_price": "115.00",
-    "subtotal_price": "100.00",
-    "total_weight": 0,
-    "total_tax": "15.00",
-    "taxes_included": false,
-    "currency": "LKR",
-    "financial_status": "paid",
+    "token": "cb3eda1cb7e0eca9e602476130f40627",
+    "gateway": "",
+    "test": false,
+    "totalPrice": "100.00",
+    "subtotalPrice": "100.00",
+    "totalWeight": 0,
+    "totalTax": "0.00",
+    "taxesIncluded": false,
+    "currency": "USD",
+    "financialStatus": "paid",
     "confirmed": true,
-    "total_discounts": "0.00",
-    "total_line_items_price": "100.00",
-    "cart_token": "",
-    "buyer_accepts_marketing": false,
+    "totalDiscounts": "0.00",
+    "totalLineItemsPrice": "100.00",
+    "cartToken": null,
+    "buyerAcceptsMarketing": false,
     "name": "#1001",
-    "referring_site": "https://ballerina-store-test.myshopify.com/products/sample-product-1",
-    "landing_site": "/wallets/checkouts.json",
-    "cancelled_at": null,
-    "cancel_reason": null,
-    "total_price_usd": "0.62",
-    "checkout_token": "0c07b9f87ac46a28575ccd09ba53477c",
+    "referringSite": null,
+    "landingSite": null,
+    "cancelledAt": null,
+    "cancelReason": null,
+    "totalPriceUsd": "100.00",
+    "checkoutToken": null,
     "reference": null,
-    "user_id": null,
-    "location_id": null,
-    "source_identifier": null,
-    "source_url": null,
-    "processed_at": "2020-07-09T05:36:23-04:00",
-    "device_id": null,
+    "userId": null,
+    "locationId": null,
+    "sourceIdentifier": null,
+    "sourceUrl": null,
+    "processedAt": "2020-07-14T08:45:59-04:00",
+    "deviceId": null,
     "phone": null,
-    "customer_locale": "en",
-    "app_id": 580111,
-    "browser_ip": "123.231.105.64",
-    "landing_site_ref": null,
-    "order_number": 1001,
-    "discount_applications": [],
-    "discount_codes": [],
-    "note_attributes": [],
-    "payment_gateway_names": [
-            "bogus"
-        ],
-    "processing_method": "direct",
-    "checkout_id": 14380782846117,
-    "source_name": "web",
-    "fulfillment_status": null,
-    "tax_lines": [
-            {
-                "price": "15.00",
-                "rate": 0.15,
-                "title": "VAT",
-                "price_set": {
-                    "shop_money": {
-                        "amount": "15.00",
-                        "currency_code": "LKR"
-                    },
-                    "presentment_money": {
-                        "amount": "15.00",
-                        "currency_code": "LKR"
-                    }
-                }
-            }
-        ],
+    "customerLocale": null,
+    "appId": 4095187,
+    "browserIp": null,
+    "landingSiteRef": null,
+    "orderNumber": 1001,
+    "discountApplications": [],
+    "discountCodes": [],
+    "noteAttributes": [],
+    "paymentGatewayNames": [],
+    "processingMethod": "",
+    "checkoutId": null,
+    "sourceName": "4095187",
+    "fulfillmentStatus": null,
+    "taxLines": [],
     "tags": "",
-    "contact_email": "tom@example.com",
-    "order_status_url": "https://ballerina-store-test.myshopify.com/39924367525/orders/d50daacb9633d6f71ce69a0bc7fec0e9/authenticate?key=58feb4f6760534b2bf63a42deffd16c5",
-    "presentment_currency": "LKR",
-    "total_line_items_price_set": {
-        "shop_money": {
+    "contactEmail": "john.doe@example.com",
+    "orderStatusUrl": "https://ballerina-test.myshopify.com/43359142049/orders/cb3eda1cb7e0eca9e602476130f40627/authenticate?key=6e79b414331b5449da4460d681409096",
+    "presentmentCurrency": "USD",
+    "totalLineItemsPriceSet": {
+        "shopMoney": {
             "amount": "100.00",
-            "currency_code": "LKR"
+            "currencyCode": "USD"
         },
-        "presentment_money": {
+        "presentmentMoney": {
             "amount": "100.00",
-            "currency_code": "LKR"
+            "currencyCode": "USD"
         }
     },
-    "total_discounts_set": {
-        "shop_money": {
+    "totalDiscountsSet": {
+        "shopMoney": {
             "amount": "0.00",
-            "currency_code": "LKR"
+            "currencyCode": "USD"
         },
-        "presentment_money": {
+        "presentmentMoney": {
             "amount": "0.00",
-            "currency_code": "LKR"
+            "currencyCode": "USD"
         }
     },
-    "total_shipping_price_set": {
-        "shop_money": {
+    "totalShippingPriceSet": {
+        "shopMoney": {
             "amount": "0.00",
-            "currency_code": "LKR"
+            "currencyCode": "USD"
         },
-        "presentment_money": {
+        "presentmentMoney": {
             "amount": "0.00",
-            "currency_code": "LKR"
+            "currencyCode": "USD"
         }
     },
-    "subtotal_price_set": {
-        "shop_money": {
+    "subtotalPriceSet": {
+        "shopMoney": {
             "amount": "100.00",
-            "currency_code": "LKR"
+            "currencyCode": "USD"
         },
-        "presentment_money": {
+        "presentmentMoney": {
             "amount": "100.00",
-            "currency_code": "LKR"
+            "currencyCode": "USD"
         }
     },
-    "total_price_set": {
-        "shop_money": {
-            "amount": "115.00",
-            "currency_code": "LKR"
+    "totalPriceSet": {
+        "shopMoney": {
+            "amount": "100.00",
+            "currencyCode": "USD"
         },
-        "presentment_money": {
-            "amount": "115.00",
-            "currency_code": "LKR"
+        "presentmentMoney": {
+            "amount": "100.00",
+            "currencyCode": "USD"
         }
     },
-    "total_tax_set": {
-        "shop_money": {
-            "amount": "15.00",
-            "currency_code": "LKR"
+    "totalTaxSet": {
+        "shopMoney": {
+            "amount": "0.00",
+            "currencyCode": "USD"
         },
-        "presentment_money": {
-            "amount": "15.00",
-            "currency_code": "LKR"
+        "presentmentMoney": {
+            "amount": "0.00",
+            "currencyCode": "USD"
         }
     },
-    "line_items": [
+    "lineItems": [
             {
-                "id": 5631244992677,
-                "variant_id": 35012701421733,
+                "id": 5611083137185,
+                "variantId": 35060410876065,
                 "title": "Sample Product 1",
                 "quantity": 1,
                 "sku": "123",
-                "variant_title": "Black / 42",
+                "variantTitle": "Black / 42",
                 "vendor": "Ballerina",
-                "fulfillment_service": "manual",
-                "product_id": 5390310015141,
-                "requires_shipping": true,
+                "fulfillmentService": "manual",
+                "productId": 5383565017249,
+                "requiresShipping": true,
                 "taxable": true,
-                "gift_card": false,
+                "giftCard": false,
                 "name": "Sample Product 1 - Black / 42",
-                "variant_inventory_management": null,
+                "variantInventoryManagement": null,
                 "properties": [],
-                "product_exists": true,
-                "fulfillable_quantity": 1,
+                "productExists": true,
+                "fulfillableQuantity": 1,
                 "grams": 0,
                 "price": "100.00",
-                "total_discount": "0.00",
-                "fulfillment_status": null,
-                "price_set": {
-                    "shop_money": {
+                "totalDiscount": "0.00",
+                "fulfillmentStatus": null,
+                "priceSet": {
+                    "shopMoney": {
                         "amount": "100.00",
-                        "currency_code": "LKR"
+                        "currencyCode": "USD"
                     },
-                    "presentment_money": {
+                    "presentmentMoney": {
                         "amount": "100.00",
-                        "currency_code": "LKR"
+                        "currencyCode": "USD"
                     }
                 },
-                "total_discount_set": {
-                    "shop_money": {
+                "totalDiscountSet": {
+                    "shopMoney": {
                         "amount": "0.00",
-                        "currency_code": "LKR"
+                        "currencyCode": "USD"
                     },
-                    "presentment_money": {
+                    "presentmentMoney": {
                         "amount": "0.00",
-                        "currency_code": "LKR"
+                        "currencyCode": "USD"
                     }
                 },
-                "discount_allocations": [],
+                "discountAllocations": [],
                 "duties": [],
-                "admin_graphql_api_id": "gid://shopify/LineItem/5631244992677",
-                "tax_lines": [
-                        {
-                            "title": "VAT",
-                            "price": "15.00",
-                            "rate": 0.15,
-                            "price_set": {
-                                "shop_money": {
-                                    "amount": "15.00",
-                                    "currency_code": "LKR"
-                                },
-                                "presentment_money": {
-                                    "amount": "15.00",
-                                    "currency_code": "LKR"
-                                }
-                            }
-                        }
-                    ],
-                "origin_location": {
-                    "id": 2220722585765,
-                    "country_code": "LK",
-                    "province_code": "",
-                    "name": "ballerina-store-test",
-                    "address1": "Rockhill",
-                    "address2": "",
-                    "city": "Nawalapitiya",
-                    "zip": "20160"
-                }
+                "adminGraphqlApiId": "gid://shopify/LineItem/5611083137185",
+                "taxLines": []
             }
         ],
     "fulfillments": [],
     "refunds": [],
-    "total_tip_received": "0.0",
-    "original_total_duties_set": null,
-    "current_total_duties_set": null,
-    "admin_graphql_api_id": "gid://shopify/Order/2559406571685",
-    "shipping_lines": [
-            {
-                "id": 2105140117669,
-                "title": "Standard",
-                "price": "0.00",
-                "code": "Standard",
-                "source": "shopify",
-                "phone": null,
-                "requested_fulfillment_service_id": null,
-                "delivery_category": null,
-                "carrier_identifier": null,
-                "discounted_price": "0.00",
-                "price_set": {
-                    "shop_money": {
-                        "amount": "0.00",
-                        "currency_code": "LKR"
-                    },
-                    "presentment_money": {
-                        "amount": "0.00",
-                        "currency_code": "LKR"
-                    }
-                },
-                "discounted_price_set": {
-                    "shop_money": {
-                        "amount": "0.00",
-                        "currency_code": "LKR"
-                    },
-                    "presentment_money": {
-                        "amount": "0.00",
-                        "currency_code": "LKR"
-                    }
-                },
-                "discount_allocations": [],
-                "tax_lines": []
-            }
-        ],
-    "billing_address": {
-        "first_name": "Tom",
-        "address1": "Common Room",
-        "phone": null,
-        "city": "Hogwarts",
-        "zip": "40404",
-        "province": null,
-        "country": "Sri Lanka",
-        "last_name": "Riddle",
-        "address2": "House of Slytherin",
-        "company": null,
-        "latitude": null,
-        "longitude": null,
-        "name": "Tom Riddle",
-        "country_code": "LK",
-        "province_code": null
-    },
-    "shipping_address": {
-        "first_name": "Tom",
-        "address1": "Common Room",
-        "phone": null,
-        "city": "Hogwarts",
-        "zip": "40404",
-        "province": null,
-        "country": "Sri Lanka",
-        "last_name": "Riddle",
-        "address2": "House of Slytherin",
-        "company": null,
-        "latitude": null,
-        "longitude": null,
-        "name": "Tom Riddle",
-        "country_code": "LK",
-        "province_code": null
-    },
-    "client_details": {
-        "browser_ip": "123.231.105.64",
-        "accept_language": "en-GB,en-US;q=0.9,en;q=0.8",
-        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36",
-        "session_hash": null,
-        "browser_width": 1665,
-        "browser_height": 943
-    },
-    "payment_details": {
-        "credit_card_bin": "1",
-        "avs_result_code": null,
-        "cvv_result_code": null,
-        "credit_card_number": "•••• •••• •••• 1",
-        "credit_card_company": "Bogus"
-    },
+    "totalTipReceived": "0.0",
+    "originalTotalDutiesSet": null,
+    "currentTotalDutiesSet": null,
+    "adminGraphqlApiId": "gid://shopify/Order/2569318891681",
+    "shippingLines": [],
     "customer": {
-        "id": 3739582300325,
-        "email": "tom@example.com",
-        "accepts_marketing": false,
-        "created_at": "2020-07-09T05:35:13-04:00",
-        "updated_at": "2020-07-09T05:36:25-04:00",
-        "first_name": "Tom",
-        "last_name": "Riddle",
-        "orders_count": 0,
+        "id": 3776780173473,
+        "email": "john.doe@example.com",
+        "acceptsMarketing": false,
+        "createdAt": "2020-07-14T05:09:09-04:00",
+        "updatedAt": "2020-07-14T08:46:00-04:00",
+        "firstName": "John",
+        "lastName": "Doe",
+        "ordersCount": 1,
         "state": "disabled",
-        "total_spent": "0.00",
-        "last_order_id": null,
+        "totalSpent": "100.00",
+        "lastOrderId": 2569318891681,
         "note": null,
-        "verified_email": true,
-        "multipass_identifier": null,
-        "tax_exempt": false,
-        "phone": null,
+        "verifiedEmail": true,
+        "multipassIdentifier": null,
+        "taxExempt": false,
+        "phone": "+94714567890",
         "tags": "",
-        "last_order_name": null,
-        "currency": "LKR",
-        "accepts_marketing_updated_at": "2020-07-09T05:35:13-04:00",
-        "marketing_opt_in_level": null,
-        "tax_exemptions": [],
-        "admin_graphql_api_id": "gid://shopify/Customer/3739582300325",
-        "default_address": {
-            "id": 4587558240421,
-            "customer_id": 3739582300325,
-            "first_name": "Tom",
-            "last_name": "Riddle",
-            "company": null,
-            "address1": "Common Room",
-            "address2": "House of Slytherin",
-            "city": "Hogwarts",
-            "province": null,
+        "lastOrderName": "#1001",
+        "currency": "USD",
+        "acceptsMarketingUpdatedAt": "2020-07-14T08:46:00-04:00",
+        "marketingOptInLevel": null,
+        "taxExemptions": [],
+        "adminGraphqlApiId": "gid://shopify/Customer/3776780173473",
+        "defaultAddress": {
+            "id": 4494995980449,
+            "customerId": 3776780173473,
+            "firstName": "John",
+            "lastName": "Doe",
+            "company": "example",
+            "address1": "number",
+            "address2": "at street",
+            "city": "at city",
+            "province": "",
             "country": "Sri Lanka",
             "zip": "40404",
-            "phone": null,
-            "name": "Tom Riddle",
-            "province_code": null,
-            "country_code": "LK",
-            "country_name": "Sri Lanka",
+            "phone": "+94734567890",
+            "name": "John Doe",
+            "provinceCode": null,
+            "countryCode": "LK",
+            "countryName": "Sri Lanka",
             "default": true
         }
     }
@@ -381,7 +245,7 @@ function getAllOrdersTest() returns Error? {
 @test:Config {}
 function getOrderTest() returns Error? {
     Order expectedOrder = check getOrderFromJson(expectedOrderJson);
-    Order|Error actualOrder = orderClient->get(ORDER_ID);
+    Order|Error actualOrder = orderClient->get(orderId);
     if (actualOrder is Error) {
         test:assertFail("Failed to retrive the order count. " + actualOrder.toString());
     } else {

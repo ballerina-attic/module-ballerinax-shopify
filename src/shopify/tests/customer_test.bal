@@ -2,15 +2,15 @@ import ballerina/test;
 import ballerina/time;
 import ballerina/io;
 
-const JOHN_DOE_ID = 3776780173473;
+const customerId = 3776780173473;
 
 time:Time createdTime = <time:Time>getTimeRecordFromTimeString("2020-07-14T05:09:09-04:00");
-time:Time updatedTime = <time:Time>getTimeRecordFromTimeString("2020-07-14T05:09:09-04:00");
-time:Time marketingUpdatedTime = <time:Time>getTimeRecordFromTimeString("2020-07-14T05:09:09-04:00");
+time:Time updatedTime = <time:Time>getTimeRecordFromTimeString("2020-07-14T08:46:00-04:00");
+time:Time marketingUpdatedTime = <time:Time>getTimeRecordFromTimeString("2020-07-14T08:46:00-04:00");
 
 Address address = {
     id: 4494995980449,
-    customerId: JOHN_DOE_ID,
+    customerId: customerId,
     firstName: "John",
     lastName: "Doe",
     company: "example",
@@ -28,31 +28,31 @@ Address address = {
     'default: true
 };
 Customer customer = {
-    id: JOHN_DOE_ID,
-    email: "john.doe@example.com",
-    acceptsMarketing: true,
-    createdAt: createdTime,
-    updatedAt: updatedTime,
-    firstName: "John",
-    lastName: "Doe",
-    ordersCount: 0,
-    state: "disabled",
-    totalSpent: "0.00",
-    lastOrderId: (),
-    note: (),
-    verifiedEmail: true,
-    multipassIdentifier: (),
-    taxExempt: false,
-    phone: "+94714567890",
-    tags: "",
-    lastOrderName: (),
-    currency: "USD",
-    addresses: [address],
+    acceptsMarketing: false,
     acceptsMarketingUpdatedAt: marketingUpdatedTime,
-    marketingOptInLevel: MARKETING_SINGLE,
-    taxExemptions: [],
+    addresses: [address],
     adminGraphqlApiId: "gid://shopify/Customer/3776780173473",
-    defaultAddress: address
+    defaultAddress: address,
+    currency: "USD",
+    createdAt: createdTime,
+    email: "john.doe@example.com",
+    firstName: "John",
+    id: customerId,
+    lastName: "Doe",
+    lastOrderId: 2569318891681,
+    lastOrderName: "#1001",
+    marketingOptInLevel: (),
+    multipassIdentifier: (),
+    note: (),
+    ordersCount: 1,
+    phone: "+94714567890",
+    state: "disabled",
+    tags: "",
+    taxExempt: false,
+    taxExemptions: [],
+    totalSpent: "100.00",
+    updatedAt: updatedTime,
+    verifiedEmail: true
 };
 
 TestUtil customerTestUtil = new;
@@ -63,7 +63,7 @@ function getAllCustomersTest() {
     Customer[] customers = [customer];
 
     CustomerFilter filter = {
-        ids: [JOHN_DOE_ID]
+        ids: [customerId]
     };
     var result = customerClient->getAll(filter);
     if (result is Error) {
@@ -76,7 +76,7 @@ function getAllCustomersTest() {
 @test:Config {}
 function getAllCustomersWithFilters() {
     Customer expectedCustomer = {
-        id: JOHN_DOE_ID,
+        id: customerId,
         email: "john.doe@example.com",
         firstName: "John",
         lastName: "Doe"
@@ -84,7 +84,7 @@ function getAllCustomersWithFilters() {
     Customer[] expectedCustomers = [expectedCustomer];
 
     CustomerFilter filter = {
-        ids: [JOHN_DOE_ID],
+        ids: [customerId],
         createdAt: {
             after: createdTime
         },
@@ -100,13 +100,20 @@ function getAllCustomersWithFilters() {
 
 @test:Config {}
 function getCustomerTest() {
-    var result = customerClient->get(JOHN_DOE_ID);
+    var result = customerClient->get(customerId);
     if (result is Error) {
         test:assertFail(result.toString());
     } else {
         foreach string key in result.keys() {
-            if (result[key] != customer[key]) {
+            var actualValue = result[key];
+            var expectedValue = customer[key];
+            if (actualValue != expectedValue) {
                 io:println("Key " + key + " not equal");
+                if (actualValue is time:Time && expectedValue is time:Time) {
+                    io:println("Expected: " + getTimeStringFromTimeRecord(expectedValue) + " | " + "Received: " + getTimeStringFromTimeRecord(actualValue));
+                } else {
+                    io:println("Expected: " + expectedValue.toString() + " | " + "Received: " + actualValue.toString());
+                }
             }
         }
         test:assertEquals(result, customer);
@@ -125,7 +132,7 @@ function getCustomerCountTest() {
     }
 }
 
-int customerId = 0;
+int createdCustomerId = 0;
 
 @test:Config {}
 function addCustomerTest() {
@@ -139,7 +146,7 @@ function addCustomerTest() {
     if (result is Error) {
         test:assertFail(result.toString());
     } else {
-        customerId = <@untainted int>result?.id;
+        createdCustomerId = <@untainted int>result?.id;
     }
 }
 
@@ -147,7 +154,7 @@ function addCustomerTest() {
     dependsOn: ["addCustomerTest"]
 }
 function deleteCustomerTest() {
-    Error? result = customerClient->remove(customerId);
+    Error? result = customerClient->remove(createdCustomerId);
     if (result is Error) {
         test:assertFail(result.toString());
     }

@@ -217,7 +217,7 @@ public type ProductCountFilter record {
 # + totalSpent - The total amount the Customer has spent
 # + updatedAt - The `time:Time` of the updated date of the Customer
 # + verifiedEmail - Whether the Email address of the Customer is verified or not
-public type Customer record {
+public type Customer record {|
     boolean acceptsMarketing?;
     time:Time acceptsMarketingUpdatedAt?;
     Address[] addresses?;
@@ -229,7 +229,7 @@ public type Customer record {
     string? firstName?;
     int id?;
     string? lastName?;
-    string? lastOrderId?;
+    int? lastOrderId?;
     string? lastOrderName?;
     NewMetafield metafield?;
     MarketingOptLevel? marketingOptInLevel?;
@@ -244,7 +244,7 @@ public type Customer record {
     string totalSpent?;
     time:Time updatedAt?;
     boolean verifiedEmail?;
-};
+|};
 
 # Represents a new Shopify customer. This record is used for create a new Customer.
 # 
@@ -362,13 +362,13 @@ public type Invite record {
 public type Order record {
     int appId?;
     Address billingAddress?;
-    string browserIp?;
+    string? browserIp?;
     boolean buyerAcceptsMarketing?;
     string? cancelReason?;
     time:Time? cancelledAt?;
-    string cartToken?;
-    int checkoutId?;
-    string checkoutToken?;
+    string? cartToken?;
+    int? checkoutId?;
+    string? checkoutToken?;
     ClientDetails clientDetails?;
     time:Time? closedAt?;
     boolean confirmed?;
@@ -377,7 +377,7 @@ public type Order record {
     string currency?;
     PriceSet? currentTotalDutiesSet?;
     Customer? customer?;
-    string customerLocale?;
+    string? customerLocale?;
     int? deviceId?;
     DiscountApplication[] discountApplications?;
     DiscountCode[] discountCodes?;
@@ -387,7 +387,7 @@ public type Order record {
     FulfillmentStatus? fulfillmentStatus?;
     string gateway?;
     int id?;
-    string landingSite?;
+    string? landingSite?;
     string? landingSiteRef?;
     LineItem[] lineItems?;
     int? locationId?;
@@ -404,7 +404,7 @@ public type Order record {
     time:Time? processedAt?;
     string processingMethod?; // TODO: Make this a separte type
     string? reference?;
-    string referringSite?;
+    string? referringSite?;
     Refund[] refunds?;
     Address shippingAddress?;
     ShippingLine[] shippingLines?;
@@ -496,8 +496,8 @@ public type NewOrder record {
     Address billingAddress?;
     boolean buyerAcceptsMarketing?;
     string? cancelReason?;
-    int checkoutId?;
-    string checkoutToken?;
+    int? checkoutId?;
+    string? checkoutToken?;
     string contactEmail?;
     string currency?;
     Customer? customer?;
@@ -517,7 +517,7 @@ public type NewOrder record {
     string presentmentCurrency?;
     time:Time? processedAt?;
     string? reference?;
-    string referringSite?;
+    string? referringSite?;
     Address shippingAddress?;
     ShippingLine[] shippingLines?;
     string sourceName?;
