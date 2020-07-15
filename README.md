@@ -1,4 +1,4 @@
-![Shopify Continuous Integration Workflow](https://github.com/ThisaruGuruge/module-ballerinax-shopify/workflows/Shopify%20Continuous%20Integration%20Workflow/badge.svg)
+![Shopify Continuous Integration Workflow](https://github.com/ballerina-platform/module-ballerinax-shopify/workflows/Shopify%20Continuous%20Integration%20Workflow/badge.svg)
 # Ballerina Shopify Connector
 This module allows to access Shopify admin REST API though Ballerina. Shopify is a popular E-commerce platform which enables users to create online stores easily. The Shopify admin API provides various functionalities for handle Shopify stores.
 
@@ -13,7 +13,7 @@ The following sections provide you details on how to use the Shopify connector.
 
 | Ballerina Shopify Connector Version | Shopify Admin API Version | Ballerina Version |
 |:-----------------------------------:|:-------------------------:|:-----------------:|
-| 0.1.0                               | 2020-04                   | 1.2.x             |
+| 0.9.0                               | 2020-04                   | Swan Lake Preview1|
 
 ## Feature Overview
 - Shopify connector has three different clients to handle different operations.

@@ -24,7 +24,7 @@ const STORE_NAME = "ballerina-test";
 public type TestUtil object {
     Store store;
 
-    public function __init() {
+    public function init() {
         string token = config:getAsString("token");
         token = token == "" ? system:getEnv("shopify_token") : config:getAsString("token");
         OAuthConfiguration oAuthConfiguration = {

@@ -259,11 +259,11 @@ function getAllProductsTest() {
 function getAllProductsWithInvalidLimitTest() {
     string expectedMessage = "The max limit must be a positive integer less than 250 (inclusive)";
     ProductFilter filter = {
-        limit: 500
+        'limit: 500
     };
     var getAllResult = productClient->getAll(filter);
     if (getAllResult is Error) {
-        string actualMessage = getAllResult.detail()?.message.toString();
+        string actualMessage = getAllResult.message();
         test:assertEquals(actualMessage, expectedMessage);
     } else {
         test:assertFail("Invalid limit for a page did not return an error");

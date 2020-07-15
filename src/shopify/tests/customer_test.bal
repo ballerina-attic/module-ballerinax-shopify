@@ -167,7 +167,7 @@ function deleteCustomerTest() {
 function deleteNonExistingCustomerTest() {
     Error? result = customerClient->remove(9999);
     if (result is Error) {
-        test:assertEquals(result.detail().message, "Not Found");
+        test:assertEquals(result.message(), "Not Found");
     } else {
         test:assertFail("Non existing customer deletion did not returned an error");
     }
@@ -235,7 +235,7 @@ function testGetAllCustomersWithPagination() {
     Customer[] expectedCustomers3 = [expectedCustomer4, expectedCustomer5];
 
     CustomerFilter filter = {
-        limit: 2,
+        'limit: 2,
         fields: ["firstName", "lastName", "email"]
     };
 

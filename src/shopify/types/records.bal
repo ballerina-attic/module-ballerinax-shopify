@@ -102,7 +102,7 @@ public type CustomerFilter record {|
 # + orderBy - Order the `Customer` records by a specified field
 # + decending - Whether the order by decending. Default value is false
 public type CustomerSearchFilter record {|
-    int limit?;
+    int 'limit?;
     string[] fields?;
     string orderBy?;
     boolean decending = false;
@@ -124,7 +124,7 @@ public type CustomerSearchFilter record {|
 #            ignored and the valid fields are returned
 public type OrderFilter record {|
     string[] ids?;
-    int limit?;
+    int 'limit?;
     string sinceId?;
     DateFilter createdAt?;
     DateFilter updatedAt?;
@@ -169,7 +169,7 @@ public type OrderCountFilter record {
 # + presentmentCurrencies - Retrieves the products by the presentsment currency
 public type ProductFilter record {
     int[] ids?;
-    int limit?;
+    int 'limit?;
     int sinceId?;
     string title?;
     string vendor?;

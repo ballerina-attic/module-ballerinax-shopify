@@ -20,7 +20,7 @@ public type ShopifyAuthHandler object {
     *http:OutboundAuthHandler;
 
     private string accessToken;
-    public function __init(string accessToken) {
+    public function init(string accessToken) {
         self.accessToken = accessToken;
     }
 

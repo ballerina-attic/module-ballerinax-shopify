@@ -10,16 +10,16 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Ballerina Shopify Connector Build
-              uses: ballerina-platform/ballerina-action/@master
+              uses: ballerina-platform/ballerina-action/@swan-lake-release
               with:
                   args:
                       build -a -c
               env:
                   shopify_token: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
             - name: Ballerina Shopify Connector Push
-              uses: ballerina-platform/ballerina-action/@master
+              uses: ballerina-platform/ballerina-action/@swan-lake-release
               with:
                   args:
                       push -a

@@ -76,7 +76,7 @@ function cancelOrder(OrderClient orderClient, int id, OrderCancellationOptions? 
     string path = ORDER_API_PATH + "/" + id.toString() + CANCEL_PATH + JSON;
     json requestPayload = {};
     if (orderCancellationOptions is OrderCancellationOptions) {
-        json jsonPayload = <json>json.constructFrom(orderCancellationOptions);
+        json jsonPayload = <json>orderCancellationOptions.cloneWithType(json);
         requestPayload = convertRecordKeysToJsonKeys(jsonPayload);
     }
     http:Request request = new;
@@ -93,7 +93,7 @@ function createOrder(OrderClient orderClient, NewOrder order) returns @tainted O
     string path = ORDER_API_PATH + JSON;
     http:Request request = new;
 
-    json newOrderJson = <json>json.constructFrom(order);
+    json newOrderJson = <json>order.cloneWithType(json);
     newOrderJson = convertRecordKeysToJsonKeys(newOrderJson);
     json payload = {
         order: newOrderJson
@@ -108,7 +108,7 @@ function createOrder(OrderClient orderClient, NewOrder order) returns @tainted O
 
 function updateOrder(OrderClient orderClient, Order order, int id) returns @tainted Order|Error {
     string path = ORDER_API_PATH + "/" + id.toString() + JSON;
-    json orderJson = <json>json.constructFrom(order);
+    json orderJson = <json>order.cloneWithType(json);
     orderJson = convertRecordKeysToJsonKeys(orderJson);
     json payload = {
         order: orderJson
@@ -160,7 +160,7 @@ function getOrderFromJson(json jsonValue) returns Order|Error {
         customer = check getCustomerFromJson(customerJson);
     }
 
-    Order|error orderFromJson = Order.constructFrom(orderJson);
+    Order|error orderFromJson = orderJson.cloneWithType(Order);
     if (orderFromJson is error) {
         return createError("Error converting the json payload to Order record.", orderFromJson);
     }
@@ -199,7 +199,7 @@ function getFulfillmentFromJson(json value) returns Fulfillment|Error {
     time:Time? createdAt = check getTimeRecordFromTimeString(createdAtString);
     time:Time? updatedAt = check getTimeRecordFromTimeString(updatedAtString);
 
-    Fulfillment|error fulfillmentFromJson = Fulfillment.constructFrom(fulfillmentJson);
+    Fulfillment|error fulfillmentFromJson = fulfillmentJson.cloneWithType(Fulfillment);
     if (fulfillmentFromJson is error) {
         return createError("Error occurred while constructing the Fulfillment record.", fulfillmentFromJson);
     }
@@ -237,7 +237,7 @@ type OrderStream object {
     string? link;
     OrderClient orderClient;
 
-    public function __init(string? link, OrderClient orderClient) {
+    public function init(string? link, OrderClient orderClient) {
         self.link = link;
         self.orderClient = orderClient;
     }

@@ -57,7 +57,7 @@ function createProduct(ProductClient productClient, NewProduct product) returns 
     string path = PRODUCT_API_PATH + JSON;
     http:Request request = new;
 
-    json newProductJson = <json>json.constructFrom(product);
+    json newProductJson = <json>product.cloneWithType(json);
     newProductJson = convertRecordKeysToJsonKeys(newProductJson);
     json payload = {
         product: newProductJson
@@ -72,7 +72,7 @@ function createProduct(ProductClient productClient, NewProduct product) returns 
 
 function updateProduct(ProductClient productClient, Product product, int id) returns @tainted Product|Error {
     string path = PRODUCT_API_PATH + "/" + id.toString() + JSON;
-    json productJson = <json>json.constructFrom(product);
+    json productJson = <json>product.cloneWithType(json);
     productJson = convertRecordKeysToJsonKeys(productJson);
     json payload = {
         product: productJson
@@ -132,7 +132,7 @@ function getProductFromJson(json jsonValue) returns Product|Error {
     time:Time? updatedAt = check getTimeRecordFromTimeString(updatedAtString);
     time:Time? publishedAt = check getTimeRecordFromTimeString(publishedAtString);
 
-    var productFromJson = Product.constructFrom(productJson);
+    var productFromJson = productJson.cloneWithType(Product);
 
     if (productFromJson is error) {
         return createError("Error occurred while constructing the Product record.", productFromJson);
@@ -168,7 +168,7 @@ function getVariantFromJson(json value) returns ProductVariant|Error {
     time:Time? createdAt = check getTimeRecordFromTimeString(createdAtString);
     time:Time? updatedAt = check getTimeRecordFromTimeString(updatedAtString);
 
-    ProductVariant|error variantFromJson = ProductVariant.constructFrom(variantJson);
+    ProductVariant|error variantFromJson = variantJson.cloneWithType(ProductVariant);
     if (variantFromJson is error) {
         return createError("Error occurred while constructing the Variant record.", variantFromJson);
     }
@@ -190,7 +190,7 @@ function getImageFromJson(json value) returns Image|Error {
     time:Time? createdAt = check getTimeRecordFromTimeString(createdAtString);
     time:Time? updatedAt = check getTimeRecordFromTimeString(updatedAtString);
 
-    Image|error imageFromJson = Image.constructFrom(imageJson);
+    Image|error imageFromJson = imageJson.cloneWithType(Image);
     if (imageFromJson is error) {
         return createError("Error occurred while constructing the Image record.", imageFromJson);
     }
@@ -228,7 +228,7 @@ type ProductStream object {
     string? link;
     ProductClient productClient;
 
-    public function __init(string? link, ProductClient productClient) {
+    public function init(string? link, ProductClient productClient) {
         self.link = link;
         self.productClient = productClient;
     }

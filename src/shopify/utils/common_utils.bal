@@ -42,9 +42,9 @@ function getAuthHandler(BasicAuthConfiguration config) returns http:BasicAuthHan
 function createError(string message, error? e = ()) returns Error {
     Error shopifyError;
     if (e is error) {
-        shopifyError = error(ERROR_REASON, message = message, cause = e);
+        shopifyError = Error(message, cause = e);
     } else {
-        shopifyError = error(ERROR_REASON, message = message);
+        shopifyError = Error(message);
     }
     return shopifyError;
 }
@@ -72,7 +72,7 @@ function checkResponse(http:Response response) returns http:Response|Error {
             string errorMessage = "";
             var errorRecord = payloadMap[ERRORS_FIELD];
             if (errorRecord is map<json>) {
-                var additionalErrorInfo = AdditionalErrorInfo.constructFrom(errorRecord);
+                var additionalErrorInfo = errorRecord.cloneWithType(AdditionalErrorInfo);
                 if (additionalErrorInfo is AdditionalErrorInfo) {
                     detail.additionalErrorInfo = additionalErrorInfo;
                 } else {
@@ -387,5 +387,5 @@ function buildQueryParamtersFromFilter(Filter filter) returns string|Error {
 
 function notImplemented() returns Error {
     io:println("Not implemented");
-    return error(ERROR_REASON, message = message);
+    return Error(message);
 }

@@ -21,7 +21,7 @@ public type ProductClient client object {
     # Creates a `ProductClient` object to handle order-related operations.
     # 
     # + store - The `shopify:Store` client object
-    public function __init(Store store) {
+    public function init(Store store) {
         self.store = store;
     }
 

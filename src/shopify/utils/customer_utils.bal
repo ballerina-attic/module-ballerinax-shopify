@@ -71,7 +71,7 @@ function createCustomer(CustomerClient customerClient, NewCustomer customer) ret
     string path = CUSTOMER_API_PATH + JSON;
 
     http:Request request = new;
-    json newCustomerJson = <json>json.constructFrom(customer);
+    json newCustomerJson = <json>customer.cloneWithType(json);
     newCustomerJson = convertRecordKeysToJsonKeys(newCustomerJson);
     json payload = {
         customer: newCustomerJson
@@ -87,7 +87,7 @@ function createCustomer(CustomerClient customerClient, NewCustomer customer) ret
 function updateCustomer(CustomerClient customerClient, Customer customer, int id) returns @tainted Customer|Error {
     string path = CUSTOMER_API_PATH + "/" + id.toString() + JSON;
 
-    json customerJson = <json>json.constructFrom(customer);
+    json customerJson = <json>customer.cloneWithType(json);
     customerJson = convertRecordKeysToJsonKeys(customerJson);
     json payload = {
         customer: customerJson
@@ -144,7 +144,7 @@ function getCustomerActivationUrl(CustomerClient customerClient, int id) returns
 
 function sendCustomerInvitation(CustomerClient customerClient, int id, Invite invite) returns @tainted Invite|Error {
     string path = CUSTOMER_API_PATH + "/" + id.toString() + SEND_INVITE_PATH + JSON;
-    json invitationJson = <json>json.constructFrom(invite);
+    json invitationJson = <json>invite.cloneWithType(json);
     invitationJson = convertRecordKeysToJsonKeys(invitationJson);
     json payload = {
         customer: invitationJson
@@ -155,7 +155,7 @@ function sendCustomerInvitation(CustomerClient customerClient, int id, Invite in
 
     map<json> responsePayload = <map<json>>check getJsonPayload(response);
     json resultingInviteJson = <json>responsePayload.customer_invite;
-    var resultingInvite = Invite.constructFrom(resultingInviteJson);
+    var resultingInvite = resultingInviteJson.cloneWithType(Invite);
     if (resultingInvite is error) {
         return createError("Error occurred while constructing the Invite record.", resultingInvite);
     }
@@ -172,7 +172,7 @@ function getCustomerFromJson(json jsonValue) returns Customer|Error {
     time:Time? updatedAt = check getTimeRecordFromTimeString(updatedAtString);
     time:Time? marketingUpdatedAt = check getTimeRecordFromTimeString(marketingUpdatedAtString);
 
-    var customerFromJson = Customer.constructFrom(customerJson);
+    var customerFromJson = customerJson.cloneWithType(Customer);
 
     if (customerFromJson is error) {
         return createError("Error occurred while constructing the Customer record.", customerFromJson);
@@ -214,7 +214,7 @@ type CustomerStream object {
     string? link;
     CustomerClient customerClient;
 
-    public function __init(string? link, CustomerClient customerClient) {
+    public function init(string? link, CustomerClient customerClient) {
         self.link = link;
         self.customerClient = customerClient;
     }

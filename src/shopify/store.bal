@@ -20,7 +20,7 @@ public type Store object {
 
     private http:Client httpClient;
 
-    public function __init(StoreConfiguration storeConfiguration) {
+    public function init(StoreConfiguration storeConfiguration) {
         string apiPath = HTTPS + storeConfiguration.storeName + SHOPIFY_URL + API_PATH;
 
         http:ClientConfiguration httpClientConfig = {

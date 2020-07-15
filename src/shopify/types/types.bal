@@ -15,7 +15,7 @@
 // under the License.
 
 # Represents a Shopify error.
-public type Error error<ERROR_REASON, Detail>;
+public type Error distinct error;
 
 # Represents the possible financial statuses of an Order.
 public type FinancialStatus FINANTIAL_PENDING|FINANTIAL_AUTHORIZED|FINANTIAL_PARTIALLY_PAID|FINANTIAL_PAID|
