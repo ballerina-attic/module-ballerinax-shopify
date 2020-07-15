@@ -1060,10 +1060,19 @@ public type Duty record {|
     string adminGraphqlApiId?;
 |};
 
+# Used to provide additional options when cancelling an Order.
+# 
+# + amount - The amount to refund
+# + currency - The currency of the refund
+# + note - Any additional notes about the cancellation
+# + email - Whether to send an email to the customer notifying the cancellation
+# + refund - The `Refund` transactions to perform. This is required for some complex refund situations
 public type OrderCancellationOptions record {
     string amount?;
     string currency?;
     string note?;
+    boolean email?;
+    Refund refund?;
 };
 
 # Represents a location in Shopify.

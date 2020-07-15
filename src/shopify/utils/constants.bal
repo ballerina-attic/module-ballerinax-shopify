@@ -10,6 +10,7 @@ const SEARCH_PATH = "/search";
 const COUNT_PATH = "/count";
 const CLOSE_PATH = "/close";
 const OPEN_PATH = "/open";
+const CANCEL_PATH = "/cancel";
 const SEND_INVITE_PATH = "/send_invite";
 const ACTIVATION_URL = "account_activation_url";
 const JSON = ".json";

@@ -55,7 +55,8 @@ public type OrderClient client object {
     # + id - The ID of the order to be cancelled
     # + orderCancellationOptions - Additional options for cancellation of the Order
     # + return - The `Order` record of the cancelled order if the operation succeeded, or else An `Error`
-    public remote function cancel(int id, OrderCancellationOptions? orderCancellationOptions = ()) returns Order|Error {
+    public remote function cancel(int id, OrderCancellationOptions? orderCancellationOptions = ()) returns
+    @tainted Order|Error {
         return cancelOrder(self, id, orderCancellationOptions);
     }
 

@@ -55,8 +55,22 @@ function openOrder(OrderClient orderClient, int id) returns @tainted Order|Error
     return getOrderFromJson(orderJson);
 }
 
-function cancelOrder(OrderClient orderClient, int id, OrderCancellationOptions? orderCancellationOptions) returns Order|Error {
-    return notImplemented();
+function cancelOrder(OrderClient orderClient, int id, OrderCancellationOptions? orderCancellationOptions) returns
+@tainted Order|Error {
+    string path = ORDER_API_PATH + "/" + id.toString() + CANCEL_PATH + JSON;
+    json requestPayload = {};
+    if (orderCancellationOptions is OrderCancellationOptions) {
+        json jsonPayload = <json>json.constructFrom(orderCancellationOptions);
+        requestPayload = convertRecordKeysToJsonKeys(jsonPayload);
+    }
+    http:Request request = new;
+    request.setJsonPayload(requestPayload);
+    http:Response response = check getResponseForPostCall(orderClient.getStore(), path, request);
+
+    json responsePayload = check getJsonPayload(response);
+    json orderJson = <json>responsePayload.order;
+
+    return getOrderFromJson(orderJson);
 }
 
 function createOrder(OrderClient orderClient, NewOrder order) returns @tainted Order|Error {
