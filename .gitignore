@@ -26,3 +26,4 @@ target
 .history
 ballerina.conf
 .DS_Store
+.idea
