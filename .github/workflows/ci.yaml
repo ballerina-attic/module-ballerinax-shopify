@@ -8,7 +8,8 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            -   name: Shopify Module Build
+            -   uses: actions/checkout@v1
+            -   name: Ballerina Build
                 uses: ballerina-platform/ballerina-action@master
                 with:
                     args:
