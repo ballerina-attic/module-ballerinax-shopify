@@ -1,7 +1,8 @@
 import ballerina/http;
 import ballerina/time;
 
-function getAllCustomers(CustomerClient customerClient, CustomerFilter? filter) returns @tainted stream<Customer[]>|Error {
+function getAllCustomers(CustomerClient customerClient, CustomerFilter? filter) returns
+    @tainted stream<Customer[]>|Error {
     string queryParams = "";
     if (filter is CustomerFilter) {
         queryParams = check buildQueryParamtersFromFilter(filter);
@@ -34,7 +35,7 @@ function searchCustomers(CustomerClient customerClient, string query, CustomerSe
                 queryParams += "&" + convertToUnderscoreCase(key) + "=" + filter[key].toString();
             } else if (key == FIELDS && filter[key] is string[]) {
                 queryParams += "&" + convertToUnderscoreCase(key) + "="
-                    + buildCommaSeparatedListFromArray(<string[]>filter[key]);
+                + buildCommaSeparatedListFromArray(<string[]>filter[key]);
             } else if (key == ORDER_BY && filter[key] is string) {
                 queryParams += "&" + ORDER + "=" + convertToUnderscoreCase(filter[key].toString());
                 if (filter.decending) {
@@ -98,8 +99,18 @@ function getCustomerCount(CustomerClient customerClient) returns @tainted int|Er
     return getIntValueFromJson(COUNT, jsonMap);
 }
 
-function getCustomerOrders(int id) returns Order[]|Error {
-    return notImplemented();
+function getCustomerOrders(CustomerClient customerClient, int id) returns @tainted Order[]|Error {
+    string path = CUSTOMER_API_PATH + "/" + id.toString() + ORDER_API_PATH + JSON;
+    http:Response response = check getResponseForGetCall(customerClient.getStore(), path);
+
+    json payload = check getJsonPayload(response);
+    json[] ordersJsonArray = <json[]>payload.orders;
+    Order[] orders = [];
+    foreach var orderJson in ordersJsonArray {
+        Order order = check getOrderFromJson(orderJson);
+        orders.push(order);
+    }
+    return orders;
 }
 
 function getCustomerActivationUrl(CustomerClient customerClient, int id) returns @tainted string|Error {
@@ -115,8 +126,24 @@ function getCustomerActivationUrl(CustomerClient customerClient, int id) returns
     }
 }
 
-function sendCustomerInvitation(int id, Invite invite) returns Invite|Error {
-    return notImplemented();
+function sendCustomerInvitation(CustomerClient customerClient, int id, Invite invite) returns @tainted Invite|Error {
+    string path = CUSTOMER_API_PATH + "/" + id.toString() + SEND_INVITE_PATH + JSON;
+    json invitationJson = <json>json.constructFrom(invite);
+    invitationJson = convertRecordKeysToJsonKeys(invitationJson);
+    json payload = {
+        customer: invitationJson
+    };
+    http:Request request = new;
+    request.setJsonPayload(<@untainted>payload);
+    http:Response response = check getResponseForPostCall(customerClient.getStore(), path, request);
+
+    map<json> responsePayload = <map<json>>check getJsonPayload(response);
+    json resultingInviteJson = <json>responsePayload.customer_invite;
+    var resultingInvite = Invite.constructFrom(resultingInviteJson);
+    if (resultingInvite is error) {
+        return createError("Error occurred while constructing the Invite record.", resultingInvite);
+    }
+    return <Invite>resultingInvite;
 }
 
 function getCustomerFromJson(json jsonValue) returns Customer|Error {

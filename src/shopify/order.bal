@@ -53,14 +53,10 @@ public type OrderClient client object {
     # Cancels the given order.
     # 
     # + id - The ID of the order to be cancelled
-    # + amount - The amount to be refunded, if required
-    # + currency - The currency of the refund. This is required for the multi-currency orders, whenever the `amount` is specified
-    # + reason - Reason for the cancellation. The default value is `shopify:CANCEL_OTHER`
-    # + sendEmailNotification - Whether to send an email notification to the customer about the cancellation. Default value is `false`
-    # + note - Any other notes on the cancellation
+    # + orderCancellationOptions - Additional options for cancellation of the Order
     # + return - The `Order` record of the cancelled order if the operation succeeded, or else An `Error`
-    public remote function cancel(int id, float? amount = (), Currency? currency = (), CancellationReason? reason = (), boolean sendEmailNotification = false, string? note = ()) returns Order|Error {
-        return cancelOrder();
+    public remote function cancel(int id, OrderCancellationOptions? orderCancellationOptions = ()) returns Order|Error {
+        return cancelOrder(self, id, orderCancellationOptions);
     }
 
     # Creates an order.

@@ -1,6 +1,5 @@
 import ballerina/test;
 import ballerina/time;
-import ballerina/io;
 
 const customerId = 3776780173473;
 
@@ -104,18 +103,6 @@ function getCustomerTest() {
     if (result is Error) {
         test:assertFail(result.toString());
     } else {
-        foreach string key in result.keys() {
-            var actualValue = result[key];
-            var expectedValue = customer[key];
-            if (actualValue != expectedValue) {
-                io:println("Key " + key + " not equal");
-                if (actualValue is time:Time && expectedValue is time:Time) {
-                    io:println("Expected: " + getTimeStringFromTimeRecord(expectedValue) + " | " + "Received: " + getTimeStringFromTimeRecord(actualValue));
-                } else {
-                    io:println("Expected: " + expectedValue.toString() + " | " + "Received: " + actualValue.toString());
-                }
-            }
-        }
         test:assertEquals(result, customer);
     }
 }

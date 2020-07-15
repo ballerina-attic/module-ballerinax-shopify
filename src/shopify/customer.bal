@@ -78,7 +78,7 @@ public type CustomerClient client object {
     # + id - The ID of the customer to retrieve the orders
     # + return - An array of `Order` records of the given customer if the operation succeeded, or else an `Error`
     public remote function getOrders(int id) returns @tainted Order[]|Error {
-        return getCustomerOrders(id);
+        return getCustomerOrders(self, id);
     }
 
     # Creates an account activation URL for the customer. This will return an error if the customer is already activated. The URL is valid for 30 days. If this function is called again on a customer, a new URL will be created and the previously created URL will be invalid.
@@ -95,7 +95,7 @@ public type CustomerClient client object {
     # + invite - The `Invite` record to be sent
     # + return - The `Invite` sent to the customer, or else an `Error`
     public remote function sendInvitation(int id, Invite invite) returns @tainted Invite|Error {
-        return sendCustomerInvitation(id, invite);
+        return sendCustomerInvitation(self, id, invite);
     }
 
     function getStore() returns Store {

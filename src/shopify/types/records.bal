@@ -278,8 +278,19 @@ public type NewCustomer record {|
     string[] taxExemptions?;
 |};
 
+# Represents an email invitation to a customer.
+# 
+# + to - The email address of the customer
+# + from - The email address of the store
+# + subject - The subject of the invitation email
+# + customMessage - The message body of the invitation
+# + bcc - An array of emails to BCC the invitation email
 public type Invite record {
-
+    string to?;
+    string 'from?;
+    string subject?;
+    string customMessage?;
+    string[] bcc?;
 };
 
 # Represents an `Order` in Shopify.
@@ -1048,6 +1059,12 @@ public type Duty record {|
     TaxLine[] taxLines?;
     string adminGraphqlApiId?;
 |};
+
+public type OrderCancellationOptions record {
+    string amount?;
+    string currency?;
+    string note?;
+};
 
 # Represents a location in Shopify.
 # 

@@ -1,5 +1,7 @@
 import ballerina/config;
+import ballerina/io;
 import ballerina/system;
+import ballerina/time;
 
 const STORE_NAME = "ballerina-test";
 
@@ -23,3 +25,18 @@ public type TestUtil object {
         return self.store;
     }
 };
+
+function printMismatches(record {} actual, record {} expected) {
+    foreach string key in expected.keys() {
+        var actualValue = actual[key];
+        var expectedValue = expected[key];
+        if (actualValue != expectedValue) {
+            io:println("Key " + key + " not equal");
+            if (actualValue is time:Time && expectedValue is time:Time) {
+                io:println("Expected: " + getTimeStringFromTimeRecord(expectedValue) + " | " + "Received: " + getTimeStringFromTimeRecord(actualValue));
+            } else {
+                io:println("Expected: " + expectedValue.toString() + " | " + "Received: " + actualValue.toString());
+            }
+        }
+    }
+}

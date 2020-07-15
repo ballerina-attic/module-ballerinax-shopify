@@ -335,11 +335,6 @@ function getResponseForPutCall(Store store, string path, http:Request request) r
     return checkResponse(response);
 }
 
-function notImplemented() returns Error {
-    io:println("Not implemented");
-    return error(ERROR_REASON, message = message);
-}
-
 function buildQueryParamtersFromFilter(Filter filter) returns string|Error {
     string queryParams = "";
     foreach var [key, value] in filter.entries() {
@@ -372,4 +367,9 @@ function buildQueryParamtersFromFilter(Filter filter) returns string|Error {
         // Remove starting '&' character from the query parameters
         return "?" + 'string:substring(queryParams, 1, queryParams.length());
     }
+}
+
+function notImplemented() returns Error {
+    io:println("Not implemented");
+    return error(ERROR_REASON, message = message);
 }
