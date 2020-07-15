@@ -4,16 +4,14 @@ on: [push]
 
 jobs:
     build:
+
         runs-on: ubuntu-latest
 
         steps:
-            -   name: Checkout
-                uses: actions/checkout@v1
-
-            -   name: Ballerina Build
+            -   name: Shopify Module Build
                 uses: ballerina-platform/ballerina-action@master
                 with:
-                    env:
-                        shopify_token: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
                     args:
                         build -a -c
+                env:
+                    shopify_token: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
