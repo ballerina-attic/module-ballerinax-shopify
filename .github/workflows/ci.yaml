@@ -7,11 +7,13 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v2
-            - name: Ballerina Build
-              uses: ballerina-platform/ballerina-action/@ballerina-1.2.x
-              with:
-                  args:
-                      build -a -c
-              env:
-                  shopify_token: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+            -   name: Checkout
+                uses: actions/checkout@v1
+
+            -   name: Ballerina Build
+                uses: ballerina-platform/ballerina-action@master
+                with:
+                    env:
+                        shopify_token: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+                    args:
+                        build -a -c
