@@ -43,7 +43,7 @@ public type DateFilter record {|
     time:Time after?;
 |};
 
-# Defines a basic authrization information for an app.
+# Defines a basic authentication information for an app.
 # 
 # + username - The username or the API key for the app
 # + password - The password of the username or the API key
@@ -52,11 +52,11 @@ public type BasicAuthConfiguration record {|
     string password;
 |};
 
-# Defines an OAuth authorization information for an app. A public or a custom app must have OAuth access token to
+# Defines an OAuth2 authorization information for an app. A public or a custom app must have OAuth2 access token to
 # access to shopify stores
 # 
 # + accessToken - The access token for a store
-public type OAuthConfiguration record {|
+public type OAuth2Configuration record {|
     string accessToken;
 |};
 

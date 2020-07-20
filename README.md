@@ -21,7 +21,7 @@ The following sections provide you details on how to use the Shopify connector.
     - `shopify:ProductClient`
     - `shopify:OrderClient`
 - The `shopify:Store` object is the base of all the above clients.
-- Basic (username and password based) and OAuth (access token based) authentication are supported.
+- Basic (username and password based) and OAuth2 (access token based) authentication are supported.
 
 ## Prerequisites
 - Download and install the compatible [Ballerina](https://ballerinalang.org/downloads/) distribution.
@@ -46,12 +46,12 @@ import ballerinax/shopify;
 public function main() {
     io:println("Shopify Customer");
     string token = <Your Shopify Access Token>;
-    shopify:OAuthConfiguration oAuthConfiguration = {
+    shopify:OAuth2Configuration oAuth2Configuration = {
         accessToken: token
     };
     shopify:StoreConfiguration storeConfiguration = {
         storeName: <Your Shopify Store Name>,
-        authConfiguration: oAuthConfiguration
+        authConfiguration: oAuth2Configuration
     };
     // Create a Store object
     shopify:Store store = new (storeConfiguration);
@@ -93,12 +93,12 @@ import ballerinax/shopify;
 
 public function main() {
     string token = <Your Shopify Access Token>;
-    shopify:OAuthConfiguration oAuthConfiguration = {
+    shopify:OAuth2Configuration oAuth2Configuration = {
         accessToken: token
     };
     shopify:StoreConfiguration storeConfiguration = {
         storeName: <Your Shopify Store Name>,
-        authConfiguration: oAuthConfiguration
+        authConfiguration: oAuth2Configuration
     };
     // Create a Store object
     shopify:Store store = new (storeConfiguration);
@@ -122,12 +122,12 @@ import ballerinax/shopify;
 
 public function main() {}
     string token = <Your Shopify Access Token>;
-    shopify:OAuthConfiguration oAuthConfiguration = {
+    shopify:OAuth2Configuration oAuth2Configuration = {
         accessToken: token
     };
     shopify:StoreConfiguration storeConfiguration = {
         storeName: <Your Shopify Store Name>,
-        authConfiguration: oAuthConfiguration
+        authConfiguration: oAuth2Configuration
     };
     // Create a Store object
     shopify:Store store = new (storeConfiguration);
