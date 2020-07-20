@@ -28,7 +28,7 @@ public type CustomerClient client object {
     # Retrieves the list of customers of the store. This API supports pagination.
     # 
     # + filter - Specify the filters when retrieving the customers
-    # + return - A stream of `Customer[]` if the request is successful, or else an `Error` 
+    # + return - A stream of `Customer[]` if the request is successful or else an `Error` 
     public remote function getAll(CustomerFilter? filter = ()) returns @tainted stream<Customer[]|Error>|Error {
         return getAllCustomers(self, filter);
     }
@@ -37,17 +37,17 @@ public type CustomerClient client object {
     # 
     # + id - The ID of the customer to be retrieved
     # + fields - Specify the list of fields of the `Customer` record to retrieve. If the provided fields are incorrect,
-    #            They will be ignored and the valid fields are returned
-    # + return - The `Customer` record of the given ID if the operation succeeded, or else an `Error`
+    #            they will be ignored and the valid fields are returned
+    # + return - The `Customer` record of the given ID if the operation succeeded or else an `Error`
     public remote function get(int id, string[]? fields = ()) returns @tainted Customer|Error {
         return getCustomer(self, id, fields);
     }
 
     # Searches for customers matching the given query string.
     # 
-    # + query - The query to search for Customers
-    # + filter - The `CustomerSearchFilter` record to filter and order the results. The default value is null
-    # + return - A stream of `Customer[]` if the request is successfull, or else an `Error`
+    # + query - The query to search for customers
+    # + filter - The `CustomerSearchFilter` record to filter and order the results. The default value is `()`
+    # + return - A stream of `Customer[]` if the request is successful or else an `Error`
     public remote function search(string query, CustomerSearchFilter? filter = ()) returns @tainted
         stream<Customer[]|Error>|Error {
         return searchCustomers(self, query, filter);
@@ -56,15 +56,15 @@ public type CustomerClient client object {
     # Creates a new customer in the store and returns the created `Customer` record. This returned record includes all the details of the customer including the values set by the Shopify admin API.
     # 
     # + customer - The customer record with the details of the customer
-    # + return - The created `Customer` record if the operation succeeded, an `Error` otherwise
+    # + return - The created `Customer` record if the operation succeeded or else an `Error` 
     public remote function create(NewCustomer customer) returns @tainted Customer|Error {
         return createCustomer(self, customer);
     }
 
     # Updates the details of a given customer. 
     # 
-    # + customer - The `Customer` record which should be updated, with the updated field values
-    # + return - The updated `Customer` record if the operation succeeded, or else an `Error`
+    # + customer - The `Customer` record, which should be updated with the updated field values
+    # + return - The updated `Customer` record if the operation succeeded or else an `Error`
     public remote function update(Customer customer) returns @tainted Customer|Error {
         var id = customer?.id;
         if (id is ()) {
@@ -77,7 +77,7 @@ public type CustomerClient client object {
     # Removes a given customer from the store. If the customer has any existing orders, the customer cannot be removed.
     # 
     # + id - The ID of the customer to be removed
-    # + return - The removed `Customer` record if the operation succeeded, or else an `Error`
+    # + return - The removed `Customer` record if the operation succeeded or else an `Error`
     public remote function remove(int id) returns Error? {
         return removeCustomer(self, id);
     }
@@ -92,15 +92,15 @@ public type CustomerClient client object {
     # Retrieves the orders from the given customer as an array.
     # 
     # + id - The ID of the customer to retrieve the orders
-    # + return - An array of `Order` records of the given customer if the operation succeeded, or else an `Error`
+    # + return - An array of the `Order` records of the given customer if the operation succeeded or else an `Error`
     public remote function getOrders(int id) returns @tainted Order[]|Error {
         return getCustomerOrders(self, id);
     }
 
-    # Creates an account activation URL for the customer. This will return an error if the customer is already activated. The URL is valid for 30 days. If this function is called again on a customer, a new URL will be created and the previously created URL will be invalid.
+    # Creates an account activation URL for the customer. This will return an error if the customer is already activated. The URL is valid for 30 days. If this function is called again on a customer, a new URL will be created and the previously-created URL will be invalid.
     # 
     # + id - The ID of the customer to be activated
-    # + return - The account verification URL if the operation succeeded, or else an `Error`
+    # + return - The account verification URL if the operation succeeded or else an `Error`
     public remote function getActivationUrl(int id) returns @tainted string|Error {
         return getCustomerActivationUrl(self, id);
     }
@@ -109,7 +109,7 @@ public type CustomerClient client object {
     # 
     # + id - The ID of the customer to send the invite
     # + invite - The `Invite` record to be sent
-    # + return - The `Invite` sent to the customer, or else an `Error`
+    # + return - The `Invite` sent to the customer or else an `Error`
     public remote function sendInvitation(int id, Invite invite) returns @tainted Invite|Error {
         return sendCustomerInvitation(self, id, invite);
     }

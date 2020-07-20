@@ -1,6 +1,6 @@
 ![Shopify Continuous Integration Workflow](https://github.com/ballerina-platform/module-ballerinax-shopify/workflows/Shopify%20Continuous%20Integration%20Workflow/badge.svg)
 # Ballerina Shopify Connector
-This module allows to access Shopify admin REST API though Ballerina. Shopify is a popular E-commerce platform which enables users to create online stores easily. The Shopify admin API provides various functionalities for handle Shopify stores.
+This module allows to access the Shopify admin REST API though Ballerina. Shopify is a popular e-commerce platform, which enables users to create online stores easily. The Shopify admin API provides various functionalities for handling Shopify stores.
 
 The following sections provide you details on how to use the Shopify connector.
 
@@ -21,19 +21,19 @@ The following sections provide you details on how to use the Shopify connector.
     - `shopify:ProductClient`
     - `shopify:OrderClient`
 - The `shopify:Store` object is the base of all the above clients.
-- Basic (Username and Password) and OAuth (Access Token) authentication are supported.
+- Basic (username and password based) and OAuth (access token based) authentication are supported.
 
 ## Prerequisites
 - Download and install the compatible [Ballerina](https://ballerinalang.org/downloads/) distribution.
-- Pull the Shopify module from the Ballerina central
+- Pull the Shopify module from Ballerina central.
 ```shell
 ballerina pull ballerinax/shopify
 ```
-- You must obtain the authentication from [Shopify Admin API](https://shopify.dev/concepts/about-apis/authentication).
+- You must obtain the authentication from the [Shopify Admin API](https://shopify.dev/concepts/about-apis/authentication).
 
 ## Samples
 ### Shopify Customer Client
-The `shopify:CustomerClient` client object can be used to handle various Customer-related operations including,
+The `shopify:CustomerClient` client object can be used to handle various customer-related operations including the following.
 - Create Customers
 - Retrieve Customer Details
 - Update Customer Details
@@ -62,7 +62,7 @@ public function main() {
         // Retrieve only specific fields of a Customer
         fields: ["firstName", "lastName", "email", "id"]
     };
-    // Get all the customers of the shop as a stream.
+    // Get all the customers of the shop as a stream
     var result = customerClient->getAll(filter);
     if (result is shopify:Error) {
         io:println(result);
@@ -81,7 +81,7 @@ public function main() {
 ```
 
 ### Shopify Product Client
-The `shopify:ProductClient` client object can be used to handle various Product-related operations including,
+The `shopify:ProductClient` client object can be used to handle various product-related operations including the following.
 - Create Products
 - Retrieve Products Details
 - Update Products Details
@@ -105,12 +105,12 @@ public function main() {
     // Obtain the ProductClient from the Store object
     shopify:ProductClient productClient = store.getProductClient();
 
-    // Get Product details using the Product ID
+    // Get the product details using the product ID
     shopify:Product|shopify:Error result = productClient->get(<Product ID>);
 }
 ```
 ### Shopify Order Client
-The `shopify:OrderClient` client object can be used to handle various Order-related operations including,
+The `shopify:OrderClient` client object can be used to handle various order-related operations including the following.
 - Create Orders
 - Retrieve Order Details
 - Update Order Details
@@ -143,7 +143,7 @@ public function main() {}
     }
     shopify:Customer customer = <shopify:Customer>customerResult;
 
-    // Add line item for the Order
+    // Add a line item for the order
     shopify:LineItem lineItem = {
         title: <Product Variant Title>,
         variantId: <Product Variant ID>,
