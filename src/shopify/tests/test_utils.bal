@@ -26,7 +26,7 @@ public type TestUtil object {
 
     public function __init() {
         string token = config:getAsString("token");
-        token = token == "" ? system:getEnv("shopify_token") : config:getAsString("token");
+        token = token == "" ? system:getEnv("shopify_token") : token;
         OAuth2Configuration oAuth2Configuration = {
             accessToken: token
         };
