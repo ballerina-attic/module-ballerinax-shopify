@@ -17,19 +17,11 @@
 import ballerina/auth;
 import ballerina/encoding;
 import ballerina/http;
-import ballerina/io;
 import ballerina/lang.'float;
 import ballerina/lang.'int;
 import ballerina/lang.'string;
 import ballerina/stringutils;
 import ballerina/time;
-
-string message = "Not implemented";
-
-function createHttpClient(string url) returns http:Client {
-    http:Client httpClient = new (url);
-    return httpClient;
-}
 
 function getAuthHandler(BasicAuthConfiguration config) returns http:BasicAuthHandler {
     auth:OutboundBasicAuthProvider outboundBasicAuthProvider = new ({
@@ -383,9 +375,4 @@ function buildQueryParamtersFromFilter(Filter filter) returns string|Error {
         // Remove starting '&' character from the query parameters
         return "?" + 'string:substring(queryParams, 1, queryParams.length());
     }
-}
-
-function notImplemented() returns Error {
-    io:println("Not implemented");
-    return error(ERROR_REASON, message = message);
 }
