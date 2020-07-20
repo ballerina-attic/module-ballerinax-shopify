@@ -30,6 +30,7 @@ public type ShopifyAuthHandler object {
     }
 
     public function inspect(http:Request req, http:Response resp) returns http:Request|http:AuthenticationError? {
-        
+        // The access token is valid forever and, there is no possibility to refresh the access token.
+        // Hence this method returns `()`.
     }
 };
