@@ -1,0 +1,27 @@
+name: Deployment
+
+on:
+    release:
+        types: [published]
+
+jobs:
+    build:
+
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Ballerina Shopify Connector Build
+              uses: ballerina-platform/ballerina-action/@master
+              with:
+                  args:
+                      build -a -c
+              env:
+                  shopify_token: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+            - name: Ballerina Shopify Connector Push
+              uses: ballerina-platform/ballerina-action/@master
+              with:
+                  args:
+                      push -a
+              env:
+                  BALLERINA_CENTRAL_ACCESS_TOKEN: ${{ secrets.BALLERINA_CENTRAL_ACCESS_TOKEN }}
